@@ -82,3 +82,25 @@ float Dot(const vec3& v1, const vec3& v2)
 {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
+
+// Magnitude
+float Magnitude(const vec2& v) 
+{
+	return sqrtf(Dot(v, v));
+}
+
+float Magnitude(const vec3& v)
+{
+	return sqrtf(Dot(v, v));
+}
+
+// Squared Magnitude
+float MagnitudeSq(const vec2& v)
+{
+	return Dot(v, v);
+}
+
+float MagnitudeSq(const vec3& v)
+{
+	return Dot(v, v);
+}

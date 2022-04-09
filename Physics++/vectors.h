@@ -67,4 +67,11 @@ bool operator!=(const vec3& v1, const vec3& v2);
 // Dot Product
 float Dot(const vec2& v1, const vec2& v2);
 float Dot(const vec3& v1, const vec3& v2);
+
+// Magnitude
+float Magnitude(const vec2& v);
+float Magnitude(const vec3& v);
+float MagnitudeSq(const vec2& v);
+float MagnitudeSq(const vec3& v);
+// Squared Magnitude
 #endif
