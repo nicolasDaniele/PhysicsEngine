@@ -104,3 +104,24 @@ float MagnitudeSq(const vec3& v)
 {
 	return Dot(v, v);
 }
+
+// Vector Normalizing
+void Normalize(vec2& v)
+{
+	v = v * (1.0f / Magnitude(v));
+}
+
+void Normalize(vec3& v)
+{
+	v = v * (1.0f / Magnitude(v));
+}
+
+vec2 Normalized(vec2& v)
+{
+	return v * (1.0f / Magnitude(v));
+}
+
+vec3 Normalized(vec3& v)
+{
+	return v * (1.0f / Magnitude(v));
+}

@@ -71,7 +71,13 @@ float Dot(const vec3& v1, const vec3& v2);
 // Magnitude
 float Magnitude(const vec2& v);
 float Magnitude(const vec3& v);
+// Squared Magnitude
 float MagnitudeSq(const vec2& v);
 float MagnitudeSq(const vec3& v);
-// Squared Magnitude
+
+// Vector Normalizing
+void Normalize(vec2& v);
+void Normalize(vec3& v);
+vec2 Normalized(vec2& v);
+vec3 Normalized(vec3& v);
 #endif
