@@ -116,12 +116,24 @@ void Normalize(vec3& v)
 	v = v * (1.0f / Magnitude(v));
 }
 
-vec2 Normalized(vec2& v)
+vec2 Normalized(const vec2& v)
 {
 	return v * (1.0f / Magnitude(v));
 }
 
-vec3 Normalized(vec3& v)
+vec3 Normalized(const vec3& v)
 {
 	return v * (1.0f / Magnitude(v));
+}
+
+// Cross Product
+vec3 Cross(const vec3 v1, const vec3 v2)
+{
+	vec3 result;
+
+	result.x = v1.y * v2.z - v1.z * v2.y;
+	result.y = v1.z * v2.x - v1.x * v2.z;
+	result.z = v1.x * v2.y - v1.y * v2.x;
+
+	return result;
 }

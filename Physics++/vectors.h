@@ -78,6 +78,10 @@ float MagnitudeSq(const vec3& v);
 // Vector Normalizing
 void Normalize(vec2& v);
 void Normalize(vec3& v);
-vec2 Normalized(vec2& v);
-vec3 Normalized(vec3& v);
+vec2 Normalized(const vec2& v);
+vec3 Normalized(const vec3& v);
+
+// Cross Product
+vec3 Cross(const vec3 v1, const vec3 v2);
+
 #endif
