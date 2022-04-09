@@ -45,6 +45,7 @@ typedef struct vec3
 
 //			METHOD DECLARATIONS
 
+// Operators Overload
 // Addition
 vec2 operator+(const vec2& v1, const vec2& v2);
 vec3 operator+(const vec3& v1, const vec3& v2);
@@ -63,4 +64,7 @@ bool operator==(const vec3& v1, const vec3& v);
 bool operator!=(const vec2& v1, const vec2& v2);
 bool operator!=(const vec3& v1, const vec3& v2);
 
+// Dot Product
+float Dot(const vec2& v1, const vec2& v2);
+float Dot(const vec3& v1, const vec3& v2);
 #endif

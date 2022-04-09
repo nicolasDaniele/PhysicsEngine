@@ -6,6 +6,7 @@
 
 	//		METHOD IMPLEMENTATION
 
+// Operators Overload
 // Addition
 vec2 operator+(const vec2& v1, const vec2& v2)
 {
@@ -69,4 +70,15 @@ bool operator!=(const vec2& v1, const vec2& v2)
 bool operator!=(const vec3& v1, const vec3& v2)
 {
 	return !(v1 == v2);
+}
+
+// Dot Product
+float Dot(const vec2& v1, const vec2& v2)
+{
+	return v1.x * v2.x + v1.y * v2.y;
+}
+
+float Dot(const vec3& v1, const vec3& v2)
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
