@@ -2,6 +2,9 @@
 #ifndef _H_MATH_VETORS_
 #define _H_MATH_VETORS_
 
+#define RAD2DEG(x) ((x) * 57.295754f)
+#define DEG2RAD(x) ((x) * 0.0174533f)
+
 //			 STRUCTURE DEFINITIONS
 
 typedef struct vec2
@@ -83,5 +86,19 @@ vec3 Normalized(const vec3& v);
 
 // Cross Product
 vec3 Cross(const vec3 v1, const vec3 v2);
+
+// Angle
+float Angle(const vec2& v1, const vec2& v2);
+float Angle(const vec3& v1, const vec3& v2);
+
+// Projection
+vec2 Project(const vec2& length, const vec2& direction);
+vec3 Project(const vec3& length, const vec3& direction);
+vec2 Peroendicular(const vec2& length, const vec2& direction);
+vec3 Peroendicular(const vec3& length, const vec3& direction);
+
+// Reflection
+vec2 Reflection(const vec2& vec, const vec2& normal);
+vec3 Reflection(const vec3& vec, const vec3& normal);
 
 #endif
