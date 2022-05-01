@@ -6,7 +6,7 @@
 #define DEG2RAD(x) ((x) * 0.0174533f)
 
 //			 STRUCTURE DEFINITIONS
-
+// VEC2
 typedef struct vec2
 {
 	union 
@@ -25,6 +25,7 @@ typedef struct vec2
 	}
 } vec2;
 
+// VEC3
 typedef struct vec3
 {
 	union 
