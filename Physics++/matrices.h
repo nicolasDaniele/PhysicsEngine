@@ -71,13 +71,23 @@ typedef struct mat4
 // Gereric Transpose
 void Transpose(const float *srcMat, float *dstMat,
 	int srcRows, int srcCols);
-// 2x2 Matrix Transpose
+// Specific Matrices Transposes
 mat2 Transpose(const mat2& matrix);
-// 3x3 Matrix Transpose
 mat3 Transpose(const mat3& matrix);
-// 4x4 Matrix Transpose
 mat4 Transpose(const mat4& matrix);
 
-
+// Multiplication
+// Scalar Multiplication
+mat2 operator* (const mat2& matrix, float scalar);
+mat3 operator* (const mat3& matrix, float scalar);
+mat4 operator* (const mat4& matrix, float scalar);
+// Matrix-Matrix Multiplication
+// Generic Multiplication
+bool Multiply(float* out, const float* matA, int aRows,
+	int aCols, const float* matB, int bRows, int bCols);
+// Specific Matrices Multiplications
+mat2 operator* (const mat2& matA, const mat2& matB);
+mat3 operator* (const mat3& matA, const mat3& matB);
+mat4 operator* (const mat4& matA, const mat4& matB);
 
 #endif
