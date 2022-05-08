@@ -141,9 +141,13 @@ mat2 operator* (const mat2& matA, const mat2& matB);
 mat3 operator* (const mat3& matA, const mat3& matB);
 mat4 operator* (const mat4& matA, const mat4& matB);
 
-// Identity Matrix
+// Determinant
+// 2x2 Matrix Determinant
+float Determinant(const mat2& matrix);
 
-
-
+// Matrix of Minors
+mat2 Cut(const mat3& mat, int row, int col);
+mat2 Minor(const mat2& mat);
+mat3 Minor(const mat3& mat);
 
 #endif

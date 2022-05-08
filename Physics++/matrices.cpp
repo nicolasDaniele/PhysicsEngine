@@ -124,3 +124,53 @@ mat4 operator* (const mat4& matA, const mat4& matB)
 		4, 4, matB.asArray, 4, 4);
 	return result;
 }
+
+// Determinant
+// 2x2 Matrix Determinant
+float Determinant(const mat2& matrix)
+{
+	return matrix._11 * matrix._22 -
+		matrix._12 * matrix._21;
+}
+
+// Matrix of Minors
+mat2 Cut(const mat3& mat, int row, int col)
+{
+	mat2 result;
+	int index = 0;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			if (i == row || j == col)
+			{
+				continue;
+			}
+			int target = index++;
+			int source = 3 * i + j;
+			result.asArray[target] = mat.asArray[source];
+		}
+	}
+
+	return result;
+}
+
+mat2 Minor(const mat2& mat)
+{
+	return mat2(mat._22, mat._21,
+		mat._12, mat._11);
+}
+
+mat3 Minor(const mat3& mat)
+{
+	mat3 result;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++ j)
+		{
+			result[i][j] = Determinant(Cut(mat, i, j));
+		}
+	}
+}
