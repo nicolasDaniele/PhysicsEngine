@@ -144,6 +144,8 @@ mat4 operator* (const mat4& matA, const mat4& matB);
 // Determinant
 // 2x2 Matrix Determinant
 float Determinant(const mat2& matrix);
+// 3x3 Matrix Determinant
+float Determinant(const mat3& matrix);
 
 // Matrix of Minors
 mat2 Cut(const mat3& mat, int row, int col);

@@ -133,6 +133,21 @@ float Determinant(const mat2& matrix)
 		matrix._12 * matrix._21;
 }
 
+// 3x3 Matrix Determinant
+float Determinant(const mat3& matrix)
+{
+	float result = 0.0f;
+	mat3 cofactor = Cofactor(matrix);
+
+	for (int j = 0; j < 3; ++j)
+	{
+		int index = 3 * 0 + j;
+		result += matrix.asArray[index] * cofactor[0][j];
+	}
+
+	return result;
+}
+
 // Matrix of Minors
 mat2 Cut(const mat3& mat, int row, int col)
 {
