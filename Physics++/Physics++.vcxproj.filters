@@ -26,5 +26,8 @@
     <ClCompile Include="vectors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="matrices.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

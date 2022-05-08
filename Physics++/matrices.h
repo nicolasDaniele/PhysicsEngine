@@ -68,9 +68,16 @@ typedef struct mat4
 
 //			METHOD DECLARATIONS
 // Transpose
+// Gereric Transpose
 void Transpose(const float *srcMat, float *dstMat,
 	int srcRows, int srcCols);
+// 2x2 Matrix Transpose
 mat2 Transpose(const mat2& matrix);
+// 3x3 Matrix Transpose
 mat3 Transpose(const mat3& matrix);
+// 4x4 Matrix Transpose
 mat4 Transpose(const mat4& matrix);
+
+
+
 #endif
