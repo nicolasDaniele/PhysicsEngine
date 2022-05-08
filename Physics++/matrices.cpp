@@ -174,3 +174,35 @@ mat3 Minor(const mat3& mat)
 		}
 	}
 }
+
+// Cofactor
+// Generic Cofactor
+void Cofactor(float* out, const float* minor,
+	int rows, int cols)
+{
+	for (int i= 0; i < rows; ++i)
+	{
+		for (int j = 0; j < cols; ++j)
+		{
+			int t = cols * j + i; // Target index
+			int s = cols * j + i; // Source index
+			float sign = powf(-1.0, i + j); // + or -
+			out[t] = minor[s] * sign;
+		}
+	}
+}
+
+// Specific Matrix Cofactors
+mat2 Cofactor(const mat2& mat)
+{
+	mat2 result;
+	Cofactor(result.asArray, Minor(mat).asArray, 2, 2);
+	return result;
+}
+
+mat3 Cofactor(const mat3& mat)
+{
+	mat3 result;
+	Cofactor(result.asArray, Minor(mat).asArray, 3, 3);
+	return result;
+}

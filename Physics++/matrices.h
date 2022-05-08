@@ -150,4 +150,12 @@ mat2 Cut(const mat3& mat, int row, int col);
 mat2 Minor(const mat2& mat);
 mat3 Minor(const mat3& mat);
 
+// Cofactor
+// Generic Cofactor
+void Cofactor(float* out, const float* minor,
+	int rowa, int cols);
+// Specific Matrix Cofactors
+mat3 Cofactor(const mat3& mat);
+mat2 Cofactor(const mat2& mat);
+
 #endif
