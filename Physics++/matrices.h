@@ -166,4 +166,14 @@ mat4 Minor(const mat4& mat);
 mat4 Cofactor(const mat4& mat);
 float Determinant(const mat4& mat);
 
+// Adjugate Matrix
+mat2 Adjugate(const mat2& mat);
+mat3 Adjugate(const mat3& mat);
+mat4 Adjugate(const mat4& mat);
+
+// Matrix Inverse
+mat2 Inverse(const mat2& mat);
+mat3 Inverse(const mat3& mat);
+mat4 Inverse(const mat4& mat);
+
 #endif
