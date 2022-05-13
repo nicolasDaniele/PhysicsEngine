@@ -125,15 +125,15 @@ mat4 operator* (const mat4& matA, const mat4& matB)
 	return result;
 }
 
-// Determinant
-// 2x2 Matrix Determinant
+// Determinants
+// Determinant of a 2x2 Matrix
 float Determinant(const mat2& matrix)
 {
 	return matrix._11 * matrix._22 -
 		matrix._12 * matrix._21;
 }
 
-// 3x3 Matrix Determinant
+// Determinant of a 3x3 Matrix
 float Determinant(const mat3& matrix)
 {
 	float result = 0.0f;
@@ -219,5 +219,61 @@ mat3 Cofactor(const mat3& mat)
 {
 	mat3 result;
 	Cofactor(result.asArray, Minor(mat).asArray, 3, 3);
+	return result;
+}
+
+// For operations on 4x4 matrices
+mat3 Cut(const mat4& mat, int row, int col)
+{
+	mat3 result;
+	int index = 0;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			if (i == row || j == col)
+			{
+				continue;
+			}
+			int target = index++;
+			int source = 4 * i + j;
+			result.asArray[target] = mat.asArray[source];
+		}
+	}
+
+	return result;
+}
+
+mat4 Minor(const mat4& mat)
+{
+	mat4 result;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			result[i][j] = Determinant(Cut(mat, i, j));
+		}
+	}
+}
+
+mat4 Cofactor(const mat4& mat)
+{
+	mat4 result;
+	Cofactor(result.asArray, Minor(mat).asArray, 4, 4);
+	return result;
+}
+
+float Determinant(const mat4& mat)
+{
+	float result = 0.0f;
+	mat4 cofactor = Cofactor(mat);
+
+	for (int j = 0; j < 4; ++j)
+	{
+		result += mat.asArray[4 * 0 + j] * cofactor[0][j];
+	}
+
 	return result;
 }

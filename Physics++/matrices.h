@@ -141,10 +141,10 @@ mat2 operator* (const mat2& matA, const mat2& matB);
 mat3 operator* (const mat3& matA, const mat3& matB);
 mat4 operator* (const mat4& matA, const mat4& matB);
 
-// Determinant
-// 2x2 Matrix Determinant
+// Determinants
+// Determinant of a 2x2 Matrix
 float Determinant(const mat2& matrix);
-// 3x3 Matrix Determinant
+// Determinant of a 3x3 Matrix
 float Determinant(const mat3& matrix);
 
 // Matrix of Minors
@@ -159,5 +159,11 @@ void Cofactor(float* out, const float* minor,
 // Specific Matrix Cofactors
 mat3 Cofactor(const mat3& mat);
 mat2 Cofactor(const mat2& mat);
+
+// For operations on 4x4 matrices
+mat3 Cut(const mat4& mat, int row, int col);
+mat4 Minor(const mat4& mat);
+mat4 Cofactor(const mat4& mat);
+float Determinant(const mat4& mat);
 
 #endif
