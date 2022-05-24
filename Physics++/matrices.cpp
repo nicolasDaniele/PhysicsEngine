@@ -343,3 +343,27 @@ vec3 GetTranslation(const mat4& mat)
 {
 	return { mat._41, mat._42, mat._43 };
 }
+
+// Scaling
+mat4 Scale(float x, float y, float z)
+{
+	return mat4(
+		x,    0.0f, 0.0f, 0.0f,
+		0.0f, y,    0.0f, 0.0f,
+		0.0f, 0.0f, z   , 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+mat4 Scale(const vec3& vec)
+{
+	return mat4(
+		vec.x, 0.0f, 0.0f, 0.0f,
+		0.0f, vec.y, 0.0f, 0.0f,
+		0.0f, 0.0f, vec.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+vec3 GetScale(const mat4& mat)
+{
+	return { mat._11, mat._22, mat._33 };
+}

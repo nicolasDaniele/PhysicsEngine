@@ -183,5 +183,9 @@ mat4 Translation(float x, float y, float z);
 mat4 Translation(const vec3& pos);
 vec3 GetTranslation(const mat4& mat);
 
+// Scaling
+mat4 Scale(float x, float y, float z);
+mat4 Scale(const vec3& vec);
+vec3 GetScale(const mat4& mat);
 
 #endif
