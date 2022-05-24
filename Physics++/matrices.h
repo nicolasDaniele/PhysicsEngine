@@ -176,4 +176,12 @@ mat2 Inverse(const mat2& mat);
 mat3 Inverse(const mat3& mat);
 mat4 Inverse(const mat4& mat);
 
+
+//		MATRIX TRANSFORMATIONS
+// Translation
+mat4 Translation(float x, float y, float z);
+mat4 Translation(const vec3& pos);
+vec3 GetTranslation(const mat4& mat);
+
+
 #endif

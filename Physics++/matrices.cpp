@@ -315,3 +315,31 @@ mat4 Inverse(const mat4& mat)
 	if (CMP(det, 0.0f)) { return mat4(); }
 	return Adjugate(mat) * (1.0f / det);
 }
+
+
+//		MATRIX TRANSFORMATIONS
+// Translation
+mat4 Translation(float x, float y, float z)
+{
+	return mat4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		x,    y,    z,    1.0f);
+}
+
+mat4 Translation(const vec3& pos)
+{
+	{
+		return mat4(
+			1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			pos.x,pos.y,pos.z,1.0f);
+	}
+}
+
+vec3 GetTranslation(const mat4& mat)
+{
+	return { mat._41, mat._42, mat._43 };
+}
