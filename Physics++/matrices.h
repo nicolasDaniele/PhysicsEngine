@@ -202,4 +202,15 @@ mat3 YRotation3x3(float angle);
 mat4 AxisAngle(const vec3& axis, float angle);
 mat3 AxisAngle3x3(const vec3& axis, float angle);
 
+// Vector-Matrix Multiplications
+vec3 MultiplyPoint(const vec3& vec, const mat4& mat);
+vec3 MultiplyVector(const vec3& vec, const mat4& mat);
+vec3 MultiplyVector(const vec3& vec, const mat3& mat);
+
+// Transform Matrix
+mat4 Transform(const vec3& scale, const vec3& eulerRotation, 
+	const vec3& translate);
+mat4 Transform(const vec3& scale, const vec3& rotationAxis, 
+	float rotationAngle, const vec3& translate);
+
 #endif

@@ -501,3 +501,57 @@ mat3 AxisAngle3x3(const vec3& axis, float angle)
 		t * x * z + s * y, t * y * z - s * x, t * (z * z) + c
 	);
 }
+
+// Vector-Matrix Multiplications
+vec3 MultiplyPoint(const vec3& vec, const mat4& mat)
+{
+	vec3 result;
+	result.x = vec.x * mat._11 + vec.y * mat._21 + 
+		       vec.z * mat._31 + 1.0f * mat._41;
+	result.y = vec.x * mat._12 + vec.y * mat._22 +
+               vec.z * mat._32 + 1.0f * mat._42;
+	result.z = vec.x * mat._13 + vec.y * mat._23 +
+               vec.z * mat._33 + 1.0f * mat._43;
+
+	return result;
+}
+
+vec3 MultiplyVector(const vec3& vec, const mat4& mat)
+{
+	vec3 result;
+	result.x = vec.x * mat._11 + vec.y * mat._21 +
+		vec.z * mat._31 + 0.0f * mat._41;
+	result.y = vec.x * mat._12 + vec.y * mat._22 +
+		vec.z * mat._32 + 0.0f * mat._42;
+	result.z = vec.x * mat._13 + vec.y * mat._23 +
+		vec.z * mat._33 + 0.0f * mat._43;
+
+	return result;
+}
+
+vec3 MultiplyVector(const vec3& vec, const mat3& mat)
+{
+	vec3 result;
+	result.x = Dot(vec, {mat._11, mat._21, mat._31});
+	result.y = Dot(vec, { mat._12, mat._22, mat._32 });
+	result.z = Dot(vec, { mat._13, mat._23, mat._33 });
+}
+
+// Transform Matrix
+mat4 Transform(const vec3& scale, const vec3& eulerRotation,
+	const vec3& translate)
+{
+	return Scale(scale) *
+		Rotation(eulerRotation.x, 
+			     eulerRotation.y,
+			     eulerRotation.z) *
+		Translation(translate);
+}
+
+mat4 Transform(const vec3& scale, const vec3& rotationAxis,
+	float rotationAngle, const vec3& translate)
+{
+	return Scale(scale) *
+		AxisAngle(rotationAxis, rotationAngle) *
+		Translation(translate);
+}
