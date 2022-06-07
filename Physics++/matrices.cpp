@@ -369,7 +369,8 @@ mat4 Scale(const vec3& vec)
 
 vec3 GetScale(const mat4& mat)
 {
-	return { mat._11, mat._22, mat._33 };
+	return vec3(mat._11, mat._22, mat._33);
+	//return { mat._11, mat._22, mat._33 };
 }
 
 // Rotation

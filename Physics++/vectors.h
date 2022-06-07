@@ -19,6 +19,10 @@ typedef struct vec2
 		float asArray[2];
 	};
 
+	inline vec2(float x, float y)
+		: x(x), y(y) {}
+	inline vec2() : x(0.0f), y(0.0f) {}
+
 	float& operator[](int i)
 	{
 		return asArray[i];
@@ -39,6 +43,10 @@ typedef struct vec3
 
 		float asArray[3];
 	};
+
+	inline vec3(float x, float y, float z) 
+	: x(x), y(y), z(z) {}
+	inline vec3() : x(0.0f), y(0.0f), z(0.0f) {}
 
 	float& operator[](int i)
 	{
