@@ -27,7 +27,24 @@ typedef struct Circle
 		: position(p), radius(r) {}
 } Circle;
 
+typedef struct Rectangle2D
+{
+	Point2D origin;
+	vec2 size;
+
+	inline Rectangle2D() : size({1, 1}) {}
+	inline Rectangle2D(const Point2D& o, const vec2& s)
+		: origin(o), size(s) {}
+
+} Rectangle2D;
+
+// Line2D methods
 float Legth(const Line2D& line);
 float LengthSq(const Line2D& line);
+
+// Rectangle2D methods
+vec2 GetMin(const Rectangle2D& rect);
+vec2 GetMax(const Rectangle2D& rect);
+Rectangle2D FromMinMax(const vec2& min, const vec2& max);
 
 #endif
