@@ -343,7 +343,7 @@ mat4 Translation(const vec3& pos)
 
 vec3 GetTranslation(const mat4& mat)
 {
-	return { mat._41, mat._42, mat._43 };
+	return vec3(mat._41, mat._42, mat._43);
 }
 
 // Scaling
@@ -370,7 +370,6 @@ mat4 Scale(const vec3& vec)
 vec3 GetScale(const mat4& mat)
 {
 	return vec3(mat._11, mat._22, mat._33);
-	//return { mat._11, mat._22, mat._33 };
 }
 
 // Rotation
@@ -533,9 +532,9 @@ vec3 MultiplyVector(const vec3& vec, const mat4& mat)
 vec3 MultiplyVector(const vec3& vec, const mat3& mat)
 {
 	vec3 result;
-	result.x = Dot(vec, {mat._11, mat._21, mat._31});
-	result.y = Dot(vec, { mat._12, mat._22, mat._32 });
-	result.z = Dot(vec, { mat._13, mat._23, mat._33 });
+	result.x = Dot(vec, vec3(mat._11, mat._21, mat._31));
+	result.y = Dot(vec, vec3(mat._12, mat._22, mat._32));
+	result.z = Dot(vec, vec3(mat._13, mat._23, mat._33));
 }
 
 // Transform Matrix
