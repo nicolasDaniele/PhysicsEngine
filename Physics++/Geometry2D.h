@@ -38,6 +38,21 @@ typedef struct Rectangle2D
 
 } Rectangle2D;
 
+typedef struct OrientedRectangle
+{
+	Point2D position;
+	vec2 halfExtents;
+	float rotation;
+
+	inline OrientedRectangle() 
+		: halfExtents({1.0f, 1.0f}), rotation(0.0f) {}
+	inline OrientedRectangle(const Point2D& p, vec2& e)
+		: position(p), halfExtents(e), rotation(0.0f) {}
+	inline OrientedRectangle(const Point2D& p, const vec2& e, float r)
+		: position(p), halfExtents(e), rotation(r) {}
+
+} OrientedRectangle;
+
 // Line2D methods
 float Legth(const Line2D& line);
 float LengthSq(const Line2D& line);
