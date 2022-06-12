@@ -97,3 +97,85 @@ bool PointInOrientedRectangle(const Point2D& point,
 
 	return PointInRectangle(localPoint, localRectangle);
 }
+
+// Line Intersection
+bool LineCircle(const Line2D& line, const Circle& circle)
+{
+	vec2 ab = line.end - line.start;
+	float t = Dot(circle.position - line.start, ab) / Dot(ab, ab);
+
+	if (t < 0.0f || t > 1.0f)
+	{
+		return false;
+	}
+
+	Point2D closestPoint = line.start + ab * t;
+	Line2D circleToClosest(circle.position, closestPoint);
+
+	return LengthSq(circleToClosest) < circle.radius * circle.radius;
+}
+
+bool LineRectangle(const Line2D& line, const Rectangle2D& rectangle)
+{
+	if (PointInRectangle(line.start, rectangle) ||
+		PointInRectangle(line.end, rectangle))
+	{
+		return true;
+	}
+
+	vec2 norm = Normalized(line.end - line.start);
+	norm.x = (norm.x != 0) ? 1.0f / norm.x : 0;
+	norm.y = (norm.y != 0) ? 1.0f / norm.y : 0;
+	
+	vec2 min = (GetMin(rectangle) - line.start) * norm;
+	vec2 max = (GetMax(rectangle) - line.start) * norm;
+
+	float tmin = fmaxf
+	(
+		fminf(min.x, max.x),
+		fminf(min.y, max.y)
+	);
+	float tmax = fminf
+	(
+		fmaxf(min.x, max.x),
+		fmaxf(min.y, max.y)
+	);
+
+	if (tmax < 0 || tmin > tmax)
+	{
+		return false;
+	}
+
+	float t = (tmin < 0.0f) ? tmax : tmin;
+
+	return t > 0.0f && t * t < LengthSq(line);
+}
+
+bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect)
+{
+	float theta = -DEG2RAD(rect.rotation);
+	float zRotation2x2[] =
+	{
+		cosf(theta), sinf(theta),
+		-sinf(theta), cosf(theta)
+	};
+	
+	Line2D localLine;
+	vec2 rotVector = line.start - rect.position;
+
+	Multiply(rotVector.asArray, vec2(rotVector.x, rotVector.y).asArray,
+		1, 2, zRotation2x2, 2, 2);
+	
+	localLine.start = rotVector + rect.halfExtents;
+	rotVector = line.end - rect.position;
+
+	Multiply(rotVector.asArray, vec2(rotVector.x, rotVector.y).asArray,
+		1, 2, zRotation2x2, 2, 2);
+
+	localLine.end = rotVector + rect.halfExtents;
+
+	Rectangle2D localRectangle(Point2D(), 
+		rect.halfExtents * 2.0f);
+
+	return LineRectangle(localLine, localRectangle);
+}

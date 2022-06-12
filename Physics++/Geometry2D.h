@@ -69,4 +69,15 @@ bool PointInRectangle(const Point2D& point, const Rectangle2D& rectangle);
 bool PointInOrientedRectangle(const Point2D& point, 
 	const OrientedRectangle& rectangle);
 
+// Line Intersection
+bool LineCircle(const Line2D& line, const Circle& circle);
+bool LineRectangle(const Line2D& line, const Rectangle2D& rectangle);
+bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect);
+
+#define PointLine(point, line) PointOnLine(point, line)
+#define LinePoint(line, point) PointOnLine(point, line)
+#define CircleLine(circle, line) LineCircle(line, circle)
+#define RectangleLine(rectangle, line) LineRectangle(line, rectangle)
+#define OrientedRectangleLine(rect, line) LineOrientedRectangle(line, rect)
+
 #endif
