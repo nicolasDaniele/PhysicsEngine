@@ -179,3 +179,12 @@ bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect)
 
 	return LineRectangle(localLine, localRectangle);
 }
+
+//		COLLISIONS
+bool CircleCircle(const Circle& circle1, const Circle& circle2)
+{
+	Line2D line(circle1.position, circle2.position);
+	float radiiSum = circle1.radius + circle2.radius;
+
+	return LengthSq(line) <= radiiSum * radiiSum;
+}

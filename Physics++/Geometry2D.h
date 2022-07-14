@@ -80,4 +80,7 @@ bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect);
 #define RectangleLine(rectangle, line) LineRectangle(line, rectangle)
 #define OrientedRectangleLine(rect, line) LineOrientedRectangle(line, rect)
 
+//		COLLISIONS
+bool CircleCircle(const Circle& circle1, const Circle& circle2);
+
 #endif
