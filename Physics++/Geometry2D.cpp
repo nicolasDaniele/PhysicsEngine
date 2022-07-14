@@ -4,6 +4,7 @@
 #include <cfloat>
 
 #define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
+#define CLAMP(number, minimum, maximum) number = (number < minimum) ? minimum : (number > maximum) ? maximum : number
 
 // Line2D methods
 float Legth(const Line2D& line)
@@ -187,4 +188,17 @@ bool CircleCircle(const Circle& circle1, const Circle& circle2)
 	float radiiSum = circle1.radius + circle2.radius;
 
 	return LengthSq(line) <= radiiSum * radiiSum;
+}
+
+bool CircleRectangle(const Circle& circle, const Rectangle2D& rectangle)
+{
+	vec2 min = GetMin(rectangle);
+	vec2 max = GetMax(rectangle);
+	Point2D closestPoint = circle.position;
+
+	CLAMP(closestPoint.x, min.x, max.x);
+	CLAMP(closestPoint.y, min.y, max.y);
+
+	Line2D line(circle.position, closestPoint);
+	return LengthSq(line) <= circle.radius * circle.radius;
 }
