@@ -5,6 +5,7 @@
 
 #define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
 #define CLAMP(number, minimum, maximum) number = (number < minimum) ? minimum : (number > maximum) ? maximum : number
+#define OVERLAP(aMin, aMax, bMin, bMax) ((bMin <= aMax) && (aMin <= bMax))
 
 // Line2D methods
 float Legth(const Line2D& line)
@@ -219,4 +220,17 @@ bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rect
 	Rectangle2D localRectangle(Point2D(), rectangle.halfExtents * 2.0f);
 
 	return CircleRectangle(localCircle, localRectangle);
+}
+
+bool RectangleRectangle(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2)
+{
+	vec2 aMin = GetMin(rectangle1);
+	vec2 aMax = GetMax(rectangle1);
+	vec2 bMin = GetMin(rectangle2);
+	vec2 bMax = GetMax(rectangle2);
+
+	bool overX = ((bMin.x <= aMax.x) && (aMin.x <= bMax.x));
+	bool overY = ((bMin.y <= aMax.y) && (aMin.y <= bMax.y));
+
+	return overX && overY;
 }
