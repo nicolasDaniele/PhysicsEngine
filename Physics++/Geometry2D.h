@@ -84,5 +84,7 @@ bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect);
 bool CircleCircle(const Circle& circle1, const Circle& circle2);
 bool CircleRectangle(const Circle& circle, const Rectangle2D& rectangle);
 #define RectangleCircle(rectangle, circle) CircleRectancle(circle, rectangle)
+bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rectangle);
+#define OrientedRectangleCircle(rectangle, circle) CircleOrientedRectangle(circle, rectangle)
 
 #endif

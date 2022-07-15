@@ -202,3 +202,21 @@ bool CircleRectangle(const Circle& circle, const Rectangle2D& rectangle)
 	Line2D line(circle.position, closestPoint);
 	return LengthSq(line) <= circle.radius * circle.radius;
 }
+
+bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rectangle)
+{
+	vec2 r = circle.position - rectangle.position;
+	float theta = -DEG2RAD(rectangle.rotation);
+	float zRotation2x2[] =
+	{
+		cosf(theta), sinf(theta),
+		-sinf(theta), cosf(theta)
+	};
+
+	Multiply(r.asArray, vec2(r.x, r.y).asArray, 1, 2, zRotation2x2, 2, 2);
+
+	Circle localCircle(r + rectangle.halfExtents, circle.radius);
+	Rectangle2D localRectangle(Point2D(), rectangle.halfExtents * 2.0f);
+
+	return CircleRectangle(localCircle, localRectangle);
+}
