@@ -53,6 +53,12 @@ typedef struct OrientedRectangle
 
 } OrientedRectangle;
 
+typedef struct Interval2D
+{
+	float min;
+	float max;
+} Interval2D;
+
 // Line2D methods
 float Legth(const Line2D& line);
 float LengthSq(const Line2D& line);
@@ -86,5 +92,19 @@ bool CircleRectangle(const Circle& circle, const Rectangle2D& rectangle);
 #define RectangleCircle(rectangle, circle) CircleRectancle(circle, rectangle)
 bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rectangle);
 #define OrientedRectangleCircle(rectangle, circle) CircleOrientedRectangle(circle, rectangle)
+bool RectangleRectangle(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2);
+
+//		COLLISIONS USING THE SEPARATING AXIS THEOREM (SAT)
+// Rectangle-Rectangle
+Interval2D GetInteval(const Rectangle2D& rectangle, const vec2& axis);
+bool OverlapOnAxis(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2, const vec2& axis);
+bool RectangleRectangleSAT(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2);
+//Rectangle-OrientedRectangle
+Interval2D GetInterval(const OrientedRectangle& rectangle, const vec2& axis);
+bool OverlapOnAxis(const Rectangle2D& rectangle1, 
+	const OrientedRectangle& rectangle2, const vec2& axis);
+bool RectangleOrientedRectangle(const Rectangle2D& rectangle1, const OrientedRectangle& rectangle2);
+#define OrientedRectangleRectangle(oriented, normal) RectangleOrientedRectangle(normal, oriented)
+
 
 #endif

@@ -5,7 +5,7 @@
 
 #define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
 #define CLAMP(number, minimum, maximum) number = (number < minimum) ? minimum : (number > maximum) ? maximum : number
-#define OVERLAP(aMin, aMax, bMin, bMax) ((bMin <= aMax) && (aMin <= bMax))
+#define OVERLAP(aMin, aMax, bMin, bMax) ((bMin <= aMax) && (aMin <= bMax|))
 
 // Line2D methods
 float Legth(const Line2D& line)
@@ -233,4 +233,133 @@ bool RectangleRectangle(const Rectangle2D& rectangle1, const Rectangle2D& rectan
 	bool overY = ((bMin.y <= aMax.y) && (aMin.y <= bMax.y));
 
 	return overX && overY;
+}
+
+//		COLLISIONS USING THE SEPARATING AXIS THEOREM (SAT)
+// Rectangle-Rectangle
+Interval2D GetInteval(const Rectangle2D& rectangle, const vec2& axis)
+{
+	Interval2D result;
+	vec2 min = GetMin(rectangle);
+	vec2 max = GetMax(rectangle);
+
+	// Get all vertices of rectangle
+	vec2 vertices[] =
+	{
+		vec2(min.x, min.y), vec2(min.x, max.y),
+		vec2(max.x, max.y), vec2(max.x, min.y)
+	};
+
+	result.min = result.max = Dot(axis, vertices[0]);
+
+	for(int i = 0; i < 4; ++i)
+	{
+		float projection = Dot(axis, vertices[i]);
+		result.min = (projection < result.min) ? projection : result.min;
+		result.max = (projection > result.max) ? projection : result.max;
+	}
+
+	return result;
+}
+
+bool OverlapOnAxis(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2, const vec2& axis)
+{
+	Interval2D a = GetInteval(rectangle1, axis);
+	Interval2D b = GetInteval(rectangle2, axis);
+
+	return((b.min <= a.max) && (a.min <= b.max));
+}
+
+bool RectangleRectangleSAT(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2)
+{
+	vec2 axisToTest[] = { vec2(1, 0), vec2(0, 1) };
+
+	for (int i = 0; i < 2; ++i)
+	{
+		// Intervals don't overlap, separating axis found
+		if (!OverlapOnAxis(rectangle1, rectangle2, axisToTest[i]))
+			return false; // No collision found
+	}
+
+	// All intervals overlap, separating axis not found
+	return true; // Collision found
+}
+
+//Rectangle-OrientedRectangle
+Interval2D GetInterval(const OrientedRectangle& rectangle, const vec2& axis)
+{
+	Rectangle2D r = Rectangle2D(Point2D(rectangle.position - rectangle.halfExtents),
+		rectangle.halfExtents * 2);
+
+	vec2 min = GetMin(r);
+	vec2 max = GetMax(r);
+	vec2 vertices[] =
+	{
+		min, max,
+		vec2(min.x, max.y), vec2(max.x, min.y)
+	};
+
+	float t = DEG2RAD(rectangle.rotation);
+	float zRot[] =
+	{
+		cosf(t), sinf(t),
+		-sinf(t), cosf(t)
+	};
+
+	for (int i = 0; i < 4; ++i)
+	{
+		vec2 r = vertices[i] - rectangle.position;
+		Multiply(r.asArray, vec2(r.x, r.y).asArray, 1, 2, zRot, 2, 2);
+		vertices[i] = r + rectangle.position;
+	}
+
+	Interval2D result;
+	result.min = result.max = Dot(axis, vertices[0]);
+	for (int i = 0; i < 4; ++i)
+	{
+		float projection = Dot(axis, vertices[i]);
+		result.min = (projection < result.min) ? projection : result.min;
+		result.max = (projection > result.max) ? projection : result.max;
+	}
+
+	return result;
+}
+
+bool OverlapOnAxis(const Rectangle2D& rectangle1,
+	const OrientedRectangle& rectangle2, const vec2& axis)
+{
+	Interval2D a = GetInteval(rectangle1, axis);
+	Interval2D b = GetInterval(rectangle2, axis);
+
+	return((b.min <= a.max) && (a.min <= b.max));
+}
+
+bool RectangleOrientedRectangle(const Rectangle2D& rectangle1, const OrientedRectangle& rectangle2)
+{
+	vec2 axisToTest[] =
+	{
+		vec2(1, 0), vec2(0, 1),
+		vec2(), vec2()
+	};
+
+	float t = DEG2RAD(rectangle2.rotation);
+	float zRot[] =
+	{
+		cosf(t), sinf(t),
+		-sinf(t), cosf(t)
+	};
+
+	vec2 axis = Normalized(vec2(rectangle2.halfExtents.x, 0));
+	Multiply(axisToTest[2].asArray, axis.asArray, 1, 2, zRot, 2, 2);
+
+	axis = Normalized(vec2(0, rectangle2.halfExtents.y));
+	Multiply(axisToTest[3].asArray, axis.asArray, 1, 2, zRot, 2, 2);
+
+	for (int i = 0; i < 4; ++i)
+	{
+		if (!OverlapOnAxis(rectangle1, rectangle2, axis))
+			return false; // No collision was found
+	}
+
+	return true; // Collision was found
 }
