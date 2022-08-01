@@ -99,12 +99,14 @@ bool RectangleRectangle(const Rectangle2D& rectangle1, const Rectangle2D& rectan
 Interval2D GetInteval(const Rectangle2D& rectangle, const vec2& axis);
 bool OverlapOnAxis(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2, const vec2& axis);
 bool RectangleRectangleSAT(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2);
-//Rectangle-OrientedRectangle
+// Rectangle-OrientedRectangle
 Interval2D GetInterval(const OrientedRectangle& rectangle, const vec2& axis);
 bool OverlapOnAxis(const Rectangle2D& rectangle1, 
 	const OrientedRectangle& rectangle2, const vec2& axis);
 bool RectangleOrientedRectangle(const Rectangle2D& rectangle1, const OrientedRectangle& rectangle2);
 #define OrientedRectangleRectangle(oriented, normal) RectangleOrientedRectangle(normal, oriented)
-
+// OrientedRectangle-OrientedRectangle
+bool OrientedRectangleOrientedRectangle(const OrientedRectangle& rectangle1, 
+	const OrientedRectangle& rectangle2);
 
 #endif

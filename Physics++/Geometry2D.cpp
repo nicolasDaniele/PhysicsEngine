@@ -363,3 +363,27 @@ bool RectangleOrientedRectangle(const Rectangle2D& rectangle1, const OrientedRec
 
 	return true; // Collision was found
 }
+
+// OrientedRectangle-OrientedRectangle
+bool OrientedRectangleOrientedRectangle(const OrientedRectangle& rectangle1,
+	const OrientedRectangle& rectangle2)
+{
+	Rectangle2D local1(Point2D(), rectangle1.halfExtents * 2.0f);
+	vec2 r = rectangle2.position - rectangle1.position;
+
+	OrientedRectangle local2(rectangle2.position, 
+		rectangle2.halfExtents, rectangle2.rotation);
+	local2.rotation = rectangle2.rotation - rectangle1.rotation;
+
+	float t = -DEG2RAD(rectangle1.rotation);
+	float zRot[] =
+	{
+		cosf(t), sinf(t),
+		-sinf(t), cosf(t)
+	};
+
+	Multiply(r.asArray, vec2(r.x, r.y).asArray, 1, 2, zRot, 2, 2);
+	local2.position = r + rectangle1.halfExtents;
+
+	return RectangleOrientedRectangle(local1, local2);
+}
