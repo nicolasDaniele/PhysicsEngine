@@ -387,3 +387,71 @@ bool OrientedRectangleOrientedRectangle(const OrientedRectangle& rectangle1,
 
 	return RectangleOrientedRectangle(local1, local2);
 }
+
+//		2D OPTIMIZATIONS
+Circle ContainingCircle(Point2D* pointsArray, int arrayCount)
+{
+	Point2D center;
+
+	for (int i = 0; i < arrayCount; ++i)
+	{
+		center = center + pointsArray[i];
+	}
+
+	center = center * (1.0f / (float)arrayCount);
+
+	Circle result(center, 1.0f);
+	result.radius = MagnitudeSq(center - pointsArray[0]);
+	for (int i = 1; i < arrayCount; ++i)
+	{
+		float distance = MagnitudeSq(center - pointsArray[i]);
+		if (distance > result.radius)
+		{
+			result.radius = distance;
+		}
+	}
+
+	result.radius = sqrtf(result.radius);
+	return result;
+}
+
+Rectangle2D ContainingRectangle(Point2D* pointArray, int arrayCount)
+{
+	vec2 min = pointArray[0];
+	vec2 max = pointArray[0];
+
+	for (int i = 0; i < arrayCount; ++i)
+	{
+		min.x = pointArray[i].x < min.x ?
+			pointArray[i].x : min.x;
+		min.y = pointArray[i].y < min.y ?
+			pointArray[i].y : min.y;
+		max.x = pointArray[i].x > max.x ?
+			pointArray[i].x : max.x;
+		max.y = pointArray[i].y > max.y ?
+			pointArray[i].y : max.y;
+	}
+
+	return FromMinMax(min, max);
+}
+
+bool PointInShape(const BoundingShape& shape, const Point2D& point)
+{
+	for (int i = 0; i < shape.numCircles; ++i)
+	{
+		if (PointInCircle(point, shape.circles[i]))
+		{
+			return true;
+		}
+	}
+
+	for (int i = 0; i < shape.numRectangles; ++i)
+	{
+		if (PointInRectangle(point, shape.rectangles[i]))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}

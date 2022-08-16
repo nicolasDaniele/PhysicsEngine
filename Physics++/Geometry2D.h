@@ -59,6 +59,18 @@ typedef struct Interval2D
 	float max;
 } Interval2D;
 
+typedef struct BoundingShape
+{
+	int numCircles;
+	Circle* circles;
+	int numRectangles;
+	Rectangle2D* rectangles;
+
+	inline BoundingShape() :
+		numCircles(0), circles(0),
+		numRectangles(0), rectangles(0) { }
+};
+
 // Line2D methods
 float Legth(const Line2D& line);
 float LengthSq(const Line2D& line);
@@ -108,5 +120,10 @@ bool RectangleOrientedRectangle(const Rectangle2D& rectangle1, const OrientedRec
 // OrientedRectangle-OrientedRectangle
 bool OrientedRectangleOrientedRectangle(const OrientedRectangle& rectangle1, 
 	const OrientedRectangle& rectangle2);
+
+//		2D OPTIMIZATIONS
+Circle ContainingCircle(Point2D* pointsArray, int ArrayCount);
+Rectangle2D ContainingRectangle(Point2D* pointArray, int arrayCount);
+bool PointInShape(const BoundingShape& shape, const Point2D& point);
 
 #endif
