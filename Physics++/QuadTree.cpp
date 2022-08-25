@@ -102,3 +102,59 @@ void QuadTreeNode::Remove(QuadTreeData& data)
 		Shake();
 	}
 }
+
+void QuadTreeNode::Reset()
+{
+	if (IsLeaf())
+	{
+		for (int i = 0, size = contents.size(); i < size; ++i)
+		{
+			contents[i]->flag = false;
+		}
+	}
+	else
+	{
+		for (int i = 0, size = children.size(); i < size; ++i)
+		{
+			children[i].Reset();
+		}
+	}
+}
+
+void QuadTreeNode::Shake()
+{
+	if (IsLeaf())
+	{
+		int numObjects = NumObjects();
+		if (numObjects == 0)
+		{
+			children.clear();
+		}
+		else if (numObjects < maxObjectsPerNode)
+		{
+			std::queue<QuadTreeNode*> process;
+			process.push(this);
+
+			while (process.size() > 0)
+			{
+				QuadTreeNode* processing = process.back();
+				if (!processing->IsLeaf())
+				{
+					for (int i = 0, size = processing->children.size();
+						i < size; ++i)
+					{
+						process.push(&processing->children[i]);
+					}
+				}
+				else
+				{
+					contents.insert(contents.end(), 
+						processing->contents.begin(),
+						processing->contents.end());
+				}
+				process.pop();
+			}
+			children.clear();
+		}
+	}
+}
