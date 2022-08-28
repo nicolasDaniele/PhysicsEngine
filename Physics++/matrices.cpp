@@ -188,6 +188,8 @@ mat3 Minor(const mat3& mat)
 			result[i][j] = Determinant(Cut(mat, i, j));
 		}
 	}
+
+	return result;
 }
 
 // Cofactor
@@ -256,6 +258,8 @@ mat4 Minor(const mat4& mat)
 			result[i][j] = Determinant(Cut(mat, i, j));
 		}
 	}
+
+	return result;
 }
 
 mat4 Cofactor(const mat4& mat)
@@ -535,6 +539,8 @@ vec3 MultiplyVector(const vec3& vec, const mat3& mat)
 	result.x = Dot(vec, vec3(mat._11, mat._21, mat._31));
 	result.y = Dot(vec, vec3(mat._12, mat._22, mat._32));
 	result.z = Dot(vec, vec3(mat._13, mat._23, mat._33));
+
+	return result;
 }
 
 // Transform Matrix

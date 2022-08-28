@@ -103,6 +103,12 @@ void QuadTreeNode::Remove(QuadTreeData& data)
 	}
 }
 
+void QuadTreeNode::Update(QuadTreeData& data)
+{
+	Remove(data);
+	Insert(data);
+}
+
 void QuadTreeNode::Reset()
 {
 	if (IsLeaf())
@@ -157,4 +163,83 @@ void QuadTreeNode::Shake()
 			children.clear();
 		}
 	}
+}
+
+void QuadTreeNode::Split()
+{
+	if (currentDepth + 1 >= maxDepth)
+	{
+		return;
+	}
+
+	vec2 min = GetMin(nodeBounds);
+	vec2 max = GetMax(nodeBounds);
+	vec2 center = min + (max - min) * 0.5;
+
+	Rectangle2D childAreas[] =
+	{
+		Rectangle2D(
+			FromMinMax(
+				vec2(min.x, min.y),
+				vec2(center.x, center.y))),
+		Rectangle2D(
+			FromMinMax(
+				vec2(center.x, min.y),
+				vec2(max.x, center.y))),
+		Rectangle2D(
+			FromMinMax(
+				vec2(center.x, center.y),
+				vec2(max.x, max.y))),
+		Rectangle2D(
+			FromMinMax(
+				vec2(min.x, center.y),
+				vec2(center.x, max.y)))
+	};
+
+	for (int i = 0; i < 4; ++i)
+	{
+		children.push_back(QuadTreeNode(childAreas[i]));
+		children[i].Insert(*contents[i]);
+	}
+	for (int i = 0, size = contents.size(); i < size; ++i)
+	{
+		children[i].Insert(*contents[i]);
+	}
+
+	contents.clear();
+}
+
+std::vector<QuadTreeData*> QuadTreeNode::Query(const Rectangle2D& area)
+{
+	std::vector<QuadTreeData*> result;
+
+	if (!RectangleRectangle(area, nodeBounds))
+	{
+		return result;
+	}
+	if (IsLeaf())
+	{
+		for (int i = 0, size = contents.size(); i < size; ++i)
+		{
+			if(RectangleRectangle(contents[i]->bounds, area))
+			{
+				result.push_back(contents[i]);
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0, size = children.size(); i < size; ++i)
+		{
+			vector<QuadTreeData*> recurse = children[i].Query(area);
+			if (recurse.size() > 0)
+			{
+				result.insert(result.end(),
+					recurse.begin(),
+					recurse.end());
+			}
+		}
+	}
+
+	return result;
 }
