@@ -12,3 +12,9 @@ float LenghtSq(const Line& line)
 {
 	return MagnitudeSq(line.start - line.end);
 }
+
+// Ray method
+Ray FromPoints(const Point& from, const Point& to)
+{
+	return Ray(from, Normalized(to - from));
+}
