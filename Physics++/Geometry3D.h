@@ -44,11 +44,26 @@ typedef struct Sphere
 		position(p), radius(r) { }
 } Sphere;
 
+typedef struct AABB
+{
+	Point origin;
+	vec3 size;
+
+	inline AABB() : size(1, 1, 1) { }
+	inline AABB(const Point& o, const vec3& s) :
+		origin(o), size(s) { }
+} AABB;
+
 // Line methods
 float Lenght(const Line& line);
 float LenghtSq(const Line& line);
 
 // Ray method
 Ray FromPoints(const Point& from, const Point& to);
+
+// AABB methods
+vec3 GetMin(const AABB& aabb);
+vec3 GetMax(const AABB& aabb);
+AABB FormMinMax(const vec3& min, const vec3& max);
 
 #endif
