@@ -46,13 +46,26 @@ typedef struct Sphere
 
 typedef struct AABB
 {
-	Point origin;
+	Point position;
 	vec3 size;
 
 	inline AABB() : size(1, 1, 1) { }
-	inline AABB(const Point& o, const vec3& s) :
-		origin(o), size(s) { }
+	inline AABB(const Point& p, const vec3& s) :
+		position(p), size(s) { }
 } AABB;
+
+typedef struct OBB
+{
+	Point position;
+	vec3 size;
+	mat3 orientation;
+
+	inline OBB() : size(1, 1, 1) { }
+	inline OBB(const Point& p, const vec3& s) :
+		position(p), size(s) { }
+	inline OBB(const Point& p, const vec3& s, const mat3& o) :
+		position(p), size(s), orientation(o) { }
+} OBB;
 
 // Line methods
 float Lenght(const Line& line);

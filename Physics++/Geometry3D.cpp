@@ -19,10 +19,11 @@ Ray FromPoints(const Point& from, const Point& to)
 	return Ray(from, Normalized(to - from));
 }
 
+// AABB methods
 vec3 GetMin(const AABB& aabb)
 {
-	vec3 p1 = aabb.origin + aabb.size;
-	vec3 p2 = aabb.origin - aabb.size;
+	vec3 p1 = aabb.position + aabb.size;
+	vec3 p2 = aabb.position - aabb.size;
 
 	return vec3(fminf(p1.x, p2.x),
 		fminf(p1.y, p2.y), 
@@ -31,8 +32,8 @@ vec3 GetMin(const AABB& aabb)
 
 vec3 GetMax(const AABB& aabb)
 {
-	vec3 p1 = aabb.origin + aabb.size;
-	vec3 p2 = aabb.origin - aabb.size;
+	vec3 p1 = aabb.position + aabb.size;
+	vec3 p2 = aabb.position - aabb.size;
 
 	return vec3(fmaxf(p1.x, p2.x),
 		fmaxf(p1.y, p2.y),
