@@ -34,6 +34,16 @@ typedef struct Ray
 	}
 } Ray;
 
+typedef struct Sphere
+{
+	Point position;
+	float radius;
+
+	inline Sphere() : radius(1.0f) { }
+	inline Sphere(const Point& p, float r) :
+		position(p), radius(r) { }
+} Sphere;
+
 // Line methods
 float Lenght(const Line& line);
 float LenghtSq(const Line& line);
