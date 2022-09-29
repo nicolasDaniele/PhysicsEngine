@@ -67,6 +67,16 @@ typedef struct OBB
 		position(p), size(s), orientation(o) { }
 } OBB;
 
+typedef struct Plane
+{
+	vec3 normal;
+	float distance;
+
+	inline Plane() : normal(1, 0, 0) { }
+	inline Plane(const vec3& n, float d) :
+		normal(n), distance(d) { }
+} Plane;
+
 // Line methods
 float Lenght(const Line& line);
 float LenghtSq(const Line& line);

@@ -44,3 +44,9 @@ AABB FormMinMax(const vec3& min, const vec3& max)
 {
 	return AABB((min + max) * 0.5f, (min - max) * 0.5f);
 }
+
+// Plane method
+float PlaneEquation(const Point& point, const Plane& plane)
+{
+	return Dot(point, plane.normal) - plane.distance;
+}
