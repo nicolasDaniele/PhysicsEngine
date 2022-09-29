@@ -77,6 +77,26 @@ typedef struct Plane
 		normal(n), distance(d) { }
 } Plane;
 
+typedef struct Triangle
+{
+	union
+	{
+		struct 
+		{
+			Point a;
+			Point b;
+			Point c;
+		};
+
+		Point points[3];
+		float values[9];
+	};
+
+	inline Triangle() { }
+	inline Triangle(const Point& p1, const Point& p2, const Point& p3) :
+		a(p1), b(p2), c(p3) { }
+} Triangle;
+
 // Line methods
 float Lenght(const Line& line);
 float LenghtSq(const Line& line);
@@ -88,5 +108,8 @@ Ray FromPoints(const Point& from, const Point& to);
 vec3 GetMin(const AABB& aabb);
 vec3 GetMax(const AABB& aabb);
 AABB FormMinMax(const vec3& min, const vec3& max);
+
+// Plane method
+float PlaneEquation(const Point& point, const Plane& plane);
 
 #endif
