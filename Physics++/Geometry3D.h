@@ -134,4 +134,8 @@ Point ClosestPoint(const Plane& plane, const Point& point);
 bool PointOnLine(const Point& point, const Line& line);
 Point ClosestPoint(const Line& line, const Point& point);
 
+// Point-Ray
+bool PointOnRay(const Point& point, const Ray& ray);
+Point ClosestPoint(const Ray& ray, const Point& point);
+
 #endif

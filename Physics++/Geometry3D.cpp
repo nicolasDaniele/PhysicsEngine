@@ -197,3 +197,27 @@ Point ClosestPoint(const Line& line, const Point& point)
 
 	return line.start + lVec * t;
 }
+
+// Point-Ray
+bool PointOnRay(const Point& point, const Ray& ray)
+{
+	if (point == ray.origin)
+	{
+		return true;
+	}
+
+	vec3 norm = point - ray.origin;
+	Normalize(norm);
+	float diff = Dot(norm, ray.direction);
+
+	return CMP(diff, 1.0); // Both vectors point in the same direction
+}
+
+Point ClosestPoint(const Ray& ray, const Point& point)
+{
+	float t = Dot(point - ray.origin, ray.direction);
+	t /= Dot(ray.direction, ray.direction); // Normalize the direction, if needed
+	t = fmaxf(t, 0.0f);
+
+	return Point(ray.origin + ray.direction * t);
+}
