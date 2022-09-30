@@ -50,3 +50,59 @@ float PlaneEquation(const Point& point, const Plane& plane)
 {
 	return Dot(point, plane.normal) - plane.distance;
 }
+
+
+// Point test methods
+// Point-Sphere
+bool PointInSphere(const Point& point, const Sphere& sphere)
+{
+	float magSq = MagnitudeSq(point - sphere.position);
+	float radSq = sphere.radius * sphere.radius;
+
+	return magSq < radSq;
+}
+
+Point ClosestPoint(const Sphere& sphere, const Point& point)
+{
+	vec3 sphereToPoint = point - sphere.position;
+	Normalize(sphereToPoint);
+	sphereToPoint = sphereToPoint * sphere.radius;
+
+	return sphereToPoint + sphere.position;
+}
+
+// Point-AABB
+bool PointInAABB(const Point& point, const AABB& aabb)
+{
+	Point min = GetMin(aabb);
+	Point max = GetMax(aabb);
+
+	if (point.x < min.x || point.y < min.y || point.z < min.z)
+	{
+		return false;
+	}
+	
+	if (point.x > max.x || point.y > max.y || point.z > max.z)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+Point ClosestPoint(const AABB& aabb, const Point& point)
+{
+	Point result = point;
+	Point min = GetMin(aabb);
+	Point max = GetMax(aabb);
+
+	result.x = (result.x < min.x) ? min.x : result.x;
+	result.y = (result.y < min.y) ? min.y : result.y;
+	result.z = (result.z < min.z) ? min.z : result.z;
+
+	result.x = (result.x > max.x) ? max.x : result.x;
+	result.y = (result.y > max.y) ? max.y : result.y;
+	result.z = (result.z > max.z) ? max.z : result.z;
+
+	return result;
+}

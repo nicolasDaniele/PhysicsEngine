@@ -112,4 +112,13 @@ AABB FormMinMax(const vec3& min, const vec3& max);
 // Plane method
 float PlaneEquation(const Point& point, const Plane& plane);
 
+
+// Point test methods
+// Point-Sphere
+bool PointInSphere(const Point& point, const Sphere& sphere);
+Point ClosestPoint(const Sphere& sphere, const Point& point);
+
+// Point-AABB
+bool PointInAABB(const Point& point, const AABB& aabb);
+Point ClosestPoint(const AABB& aabb, const Point& point);
 #endif
