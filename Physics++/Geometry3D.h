@@ -121,4 +121,17 @@ Point ClosestPoint(const Sphere& sphere, const Point& point);
 // Point-AABB
 bool PointInAABB(const Point& point, const AABB& aabb);
 Point ClosestPoint(const AABB& aabb, const Point& point);
+
+// Point-OBB
+bool PointInOBB(const Point& point, const OBB& obb);
+Point ClosestPoint(const OBB& obb, const Point& point);
+
+// Point-Plane
+bool PointOnPlane(const Point& point, const Plane& plane);
+Point ClosestPoint(const Plane& plane, const Point& point);
+
+// Point-Line
+bool PointOnLine(const Point& point, const Line& line);
+Point ClosestPoint(const Line& line, const Point& point);
+
 #endif
