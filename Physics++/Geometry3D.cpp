@@ -240,3 +240,12 @@ bool SphereAABB(const Sphere& sphere, const AABB& aabb)
 
 	return sqDistance < sqRadius;
 }
+
+bool SphereOBB(const Sphere& sphere, const OBB& obb)
+{
+	Point closestPoint = ClosestPoint(obb, sphere.position);
+	float sqDistance = MagnitudeSq(sphere.position - closestPoint);
+	float sqRadius = sphere.radius * sphere.radius;
+
+	return sqDistance < sqRadius;
+}

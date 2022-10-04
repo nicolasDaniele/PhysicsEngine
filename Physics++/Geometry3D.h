@@ -7,6 +7,7 @@
 
 typedef vec3 Point;
 #define AABBShpere(aabb, sphere) SphereAABB(sphere, aabb)
+#define OBBShpere(obb, sphere) SphereOBB(sphere, obb)
 
 typedef struct Line 
 {
@@ -143,6 +144,6 @@ Point ClosestPoint(const Ray& ray, const Point& point);
 // 3D Shape Intersections
 bool SphereShpere(const Sphere& sphere1, const Sphere& sphere2);
 bool SphereAABB(const Sphere& sphere, const AABB& aabb);
-
+bool SphereOBB(const Sphere& sphere, const OBB& obb);
 
 #endif
