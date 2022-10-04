@@ -221,3 +221,22 @@ Point ClosestPoint(const Ray& ray, const Point& point)
 
 	return Point(ray.origin + ray.direction * t);
 }
+
+
+// 3D Shape Intersections
+bool SphereShpere(const Sphere& sphere1, const Sphere& sphere2)
+{
+	float radiiSum = sphere1.radius + sphere2.radius;
+	float sqDistance = MagnitudeSq(sphere1.position - sphere2.position);
+
+	return sqDistance < (radiiSum * radiiSum);
+}
+
+bool SphereAABB(const Sphere& sphere, const AABB& aabb)
+{
+	Point closestpoint = ClosestPoint(aabb, sphere.position);
+	float sqDistance = MagnitudeSq(sphere.position - closestpoint);
+	float sqRadius = sphere.radius * sphere.radius;
+
+	return sqDistance < sqRadius;
+}

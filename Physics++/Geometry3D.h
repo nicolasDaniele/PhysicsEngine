@@ -6,6 +6,7 @@
 #include "matrices.h"
 
 typedef vec3 Point;
+#define AABBShpere(aabb, sphere) SphereAABB(sphere, aabb)
 
 typedef struct Line 
 {
@@ -137,5 +138,11 @@ Point ClosestPoint(const Line& line, const Point& point);
 // Point-Ray
 bool PointOnRay(const Point& point, const Ray& ray);
 Point ClosestPoint(const Ray& ray, const Point& point);
+
+
+// 3D Shape Intersections
+bool SphereShpere(const Sphere& sphere1, const Sphere& sphere2);
+bool SphereAABB(const Sphere& sphere, const AABB& aabb);
+
 
 #endif
