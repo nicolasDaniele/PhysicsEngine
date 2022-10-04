@@ -8,8 +8,8 @@
 typedef vec3 Point;
 #define AABBShpere(aabb, sphere)    SphereAABB(sphere, aabb)
 #define OBBShpere(obb, sphere)      SphereOBB(sphere, obb)
-#define PlaneSphere(planer, sphere) SpherePlane(sphere, plane)
-
+#define PlaneSphere(plane, sphere) SpherePlane(sphere, plane)
+#define OBBAABB(obb, aabb) AABBOBB(aabb, obb)
 
 
 typedef struct Line 
@@ -102,6 +102,12 @@ typedef struct Triangle
 		a(p1), b(p2), c(p3) { }
 } Triangle;
 
+typedef struct Interval
+{
+	float min;
+	float max;
+} Interval;
+
 // Line methods
 float Lenght(const Line& line);
 float LenghtSq(const Line& line);
@@ -149,8 +155,12 @@ bool SphereShpere(const Sphere& sphere1, const Sphere& sphere2);
 bool SphereAABB(const Sphere& sphere, const AABB& aabb);
 bool SphereOBB(const Sphere& sphere, const OBB& obb);
 bool SpherePlane(const Sphere& sphere, const Plane& plane);
+bool AABBAABB(const AABB& aabb1, const AABB& aabb2);
+bool AABBOBB(const AABB& aabb, const OBB& obb);
 
-
+// Interval methods
+Interval GetInterval(const AABB& aabb, const vec3& axis);
+Interval GetInterval(const OBB& obb, const vec3& axis);
 
 
 

@@ -258,3 +258,89 @@ bool SpherePlane(const Sphere& sphere, const Plane& plane)
 
 	return sqDistance < sqRadius;
 }
+
+bool AABBAABB(const AABB& aabb1, const AABB& aabb2)
+{
+	Point aMin = GetMin(aabb1);
+	Point aMax = GetMax(aabb1);
+
+	Point bMin = GetMin(aabb2);
+	Point bMax = GetMax(aabb2);
+
+	return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
+		   (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
+		   (aMin.z <= bMax.z && aMax.z >= bMin.z);
+}
+
+bool AABBOBB(const AABB& aabb, const OBB& obb)
+{
+
+}
+
+// Interval methods
+Interval GetInterval(const AABB& aabb, const vec3& axis)
+{
+	vec3 min = GetMin(aabb);
+	vec3 max = GetMax(aabb);
+
+	vec3 vertex[8] =
+	{
+		vec3(min.x, max.y, max.z),
+		vec3(min.x, max.y, min.z),
+		vec3(min.x, min.y, max.z),
+		vec3(min.x, min.y, min.z),
+		vec3(max.x, max.y, max.z),
+		vec3(max.x, max.y, min.z),
+		vec3(max.x, min.y, max.z),
+		vec3(max.x, min.y, min.z)
+	};
+
+	Interval result;
+	result.min = result.max = Dot(axis, vertex[0]);
+
+	for (int i = 0; i < 8; ++i)
+	{
+		float projection = Dot(axis, vertex[i]);
+		result.min = (projection < result.min) ? projection : result.min;
+		result.max = (projection > result.max) ? projection : result.max;
+	}
+
+	return result;
+}
+
+Interval GetInterval(const OBB& obb, const vec3& axis)
+{
+	vec3 vertex[8];
+	vec3 C = obb.position; // OBB center
+	vec3 E = obb.size; // OBB extents
+
+	const float* O = obb.orientation.asArray; // OBB orientation
+
+	vec3 A[] = // OBB axis
+	{
+		vec3(O[0], O[1], O[2]),
+		vec3(O[3], O[4], O[5]),
+		vec3(O[6], O[7], O[8])
+	};
+
+	vertex[0] = C + A[0] * E[0] + A[1] * E[1] + A[2] * E[2];
+	vertex[1] = C - A[0] * E[0] + A[1] * E[1] + A[2] * E[2];
+	vertex[2] = C + A[0] * E[0] - A[1] * E[1] + A[2] * E[2];
+	vertex[3] = C + A[0] * E[0] + A[1] * E[1] - A[2] * E[2];
+	vertex[4] = C - A[0] * E[0] - A[1] * E[1] - A[2] * E[2];
+	vertex[5] = C + A[0] * E[0] - A[1] * E[1] - A[2] * E[2];
+	vertex[6] = C - A[0] * E[0] + A[1] * E[1] - A[2] * E[2];
+	vertex[7] = C - A[0] * E[0] - A[1] * E[1] + A[2] * E[2];
+
+	Interval result;
+	result.min = result.max = Dot(axis, vertex[0]);
+
+	for (int i = 0; i < 8; ++i)
+	{
+		float projection = Dot(axis, vertex[i]);
+		result.min = (projection < result.min) ? projection : result.min;
+		result.max = (projection > result.max) ? projection : result.max;
+	}
+
+	return result;
+}
