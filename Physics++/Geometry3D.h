@@ -161,7 +161,7 @@ bool AABBOBB(const AABB& aabb, const OBB& obb);
 bool AABBPlane(const AABB& aabb, const Plane& plane);
 bool OBBOBB(const OBB& obb1, const OBB& obb2);
 bool OBBPlane(const OBB& obb, const Plane& plane);
-
+bool PlanePlane(const Plane& plane1, const Plane& plane2);
 
 // Overlap on axis methods
 bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis);

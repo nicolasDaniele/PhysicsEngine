@@ -376,6 +376,12 @@ bool OBBPlane(const OBB& obb, const Plane& plane)
 	return fabsf(distance) <= pLen;
 }
 
+bool PlanePlane(const Plane& plane1, const Plane& plane2)
+{
+	vec3 d = Cross(plane1.normal, plane2.normal);
+	return CMP(Dot(d, d), 0);
+}
+
 // Overlap on axis methods
 bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis)
 {
