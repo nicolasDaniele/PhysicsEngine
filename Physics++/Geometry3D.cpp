@@ -274,7 +274,45 @@ bool AABBAABB(const AABB& aabb1, const AABB& aabb2)
 
 bool AABBOBB(const AABB& aabb, const OBB& obb)
 {
+	const float* orientation = obb.orientation.asArray;
 
+	vec3 test[15] =
+	{
+		// AABB axes
+		vec3(1, 0, 0),
+		vec3(0, 1, 0),
+		vec3(0, 0, 1),
+		// OBB axes
+		vec3(orientation[0], orientation[1], orientation[2]),
+		vec3(orientation[3], orientation[4], orientation[5]),
+		vec3(orientation[6], orientation[7], orientation[8])
+	};
+
+	// Product between AABB axes and OBB axes
+	for (int i = 0; i < 3; ++i)
+	{
+		test[6 + i * 3 + 0] = Cross(test[i], test[0]);
+		test[6 + i * 3 + 1] = Cross(test[i], test[1]);
+		test[6 + i * 3 + 2] = Cross(test[i], test[2]);
+	}
+
+	for (int i = 0; i < 15; ++i)
+	{
+		if (!OverlapOnAxis(aabb, obb, test[i]))
+		{
+			return false; // Separating axis found
+		}
+	}
+
+	return true; // No separating axis found
+}
+
+bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis)
+{
+	Interval a = GetInterval(aabb, axis);
+	Interval b = GetInterval(obb, axis);
+
+	return ((b.min <= a.max) && (a.min <= b.max));
 }
 
 // Interval methods

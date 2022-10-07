@@ -158,6 +158,8 @@ bool SpherePlane(const Sphere& sphere, const Plane& plane);
 bool AABBAABB(const AABB& aabb1, const AABB& aabb2);
 bool AABBOBB(const AABB& aabb, const OBB& obb);
 
+bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis);
+
 // Interval methods
 Interval GetInterval(const AABB& aabb, const vec3& axis);
 Interval GetInterval(const OBB& obb, const vec3& axis);
