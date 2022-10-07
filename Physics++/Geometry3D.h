@@ -10,6 +10,7 @@ typedef vec3 Point;
 #define OBBShpere(obb, sphere)      SphereOBB(sphere, obb)
 #define PlaneSphere(plane, sphere) SpherePlane(sphere, plane)
 #define OBBAABB(obb, aabb) AABBOBB(aabb, obb)
+#define PlaneAABB(plane, aabb) AABBPlane(aabb, plane)
 
 
 typedef struct Line 
@@ -157,6 +158,8 @@ bool SphereOBB(const Sphere& sphere, const OBB& obb);
 bool SpherePlane(const Sphere& sphere, const Plane& plane);
 bool AABBAABB(const AABB& aabb1, const AABB& aabb2);
 bool AABBOBB(const AABB& aabb, const OBB& obb);
+bool AABBPlane(const AABB& aabb, const Plane& plane);
+
 
 bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis);
 

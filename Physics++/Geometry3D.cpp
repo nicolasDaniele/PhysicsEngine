@@ -307,6 +307,18 @@ bool AABBOBB(const AABB& aabb, const OBB& obb)
 	return true; // No separating axis found
 }
 
+bool AABBPlane(const AABB& aabb, const Plane& plane)
+{
+	float pLen = aabb.size.x* fabsf(plane.normal.x) +
+		aabb.size.y * fabsf(plane.normal.y) +
+		aabb.size.z * fabsf(plane.normal.z);
+
+	float dot = Dot(plane.normal, aabb.position);
+	float distance = dot - plane.distance;
+
+	return fabsf(distance) <= pLen;
+}
+
 bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis)
 {
 	Interval a = GetInterval(aabb, axis);
