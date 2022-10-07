@@ -11,7 +11,7 @@ typedef vec3 Point;
 #define PlaneSphere(plane, sphere) SpherePlane(sphere, plane)
 #define OBBAABB(obb, aabb) AABBOBB(aabb, obb)
 #define PlaneAABB(plane, aabb) AABBPlane(aabb, plane)
-
+#define PlaneOBB(plane, obb) OBBPlane(obb, plane)
 
 typedef struct Line 
 {
@@ -159,9 +159,13 @@ bool SpherePlane(const Sphere& sphere, const Plane& plane);
 bool AABBAABB(const AABB& aabb1, const AABB& aabb2);
 bool AABBOBB(const AABB& aabb, const OBB& obb);
 bool AABBPlane(const AABB& aabb, const Plane& plane);
+bool OBBOBB(const OBB& obb1, const OBB& obb2);
+bool OBBPlane(const OBB& obb, const Plane& plane);
 
 
+// Overlap on axis methods
 bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis);
+bool OverlapOnAxis(const OBB& obb1, const OBB& obb2, const vec3& axis);
 
 // Interval methods
 Interval GetInterval(const AABB& aabb, const vec3& axis);

@@ -319,10 +319,76 @@ bool AABBPlane(const AABB& aabb, const Plane& plane)
 	return fabsf(distance) <= pLen;
 }
 
+bool OBBOBB(const OBB& obb1, const OBB& obb2)
+{
+	const float* orientation1 = obb1.orientation.asArray;
+	const float* orientation2 = obb2.orientation.asArray;
+
+	vec3 test[15] =
+	{
+		// OBB1 axes
+		vec3(orientation1[0], orientation1[1], orientation1[2]),
+		vec3(orientation1[3], orientation1[4], orientation1[5]),
+		vec3(orientation1[6], orientation1[7], orientation1[8]),
+		// OBB2 axes
+		vec3(orientation2[0], orientation2[1], orientation2[2]),
+		vec3(orientation2[3], orientation2[4], orientation2[5]),
+		vec3(orientation2[6], orientation2[7], orientation2[8])
+	};
+
+	// Product between OBB1 and OBB2
+	for (int i = 0; i < 3; ++i)
+	{
+		test[6 + i * 3 + 0] = Cross(test[i], test[0]);
+		test[6 + i * 3 + 1] = Cross(test[i], test[1]);
+		test[6 + i * 3 + 2] = Cross(test[i], test[2]);
+	}
+
+	for (int i = 0; i < 15; ++i)
+	{
+		if (!OverlapOnAxis(obb1, obb2, test[i]))
+		{
+			return false; // Separating axis found
+		}
+	}
+
+	return true; // No separating axis found
+}
+
+bool OBBPlane(const OBB& obb, const Plane& plane)
+{
+	const float* orientation = obb.orientation.asArray;
+	vec3 rotation[] =
+	{
+		vec3(orientation[0], orientation[1], orientation[2]),
+		vec3(orientation[3], orientation[4], orientation[5]),
+		vec3(orientation[6], orientation[7], orientation[8])
+	};
+
+	vec3 normal = plane.normal;
+	float pLen = obb.size.x * fabsf(Dot(normal, rotation[0])) +
+		obb.size.y * fabsf(Dot(normal, rotation[1])) +
+		obb.size.z * fabsf(Dot(normal, rotation[2]));
+
+	float dot = Dot(plane.normal, obb.position);
+	float distance = dot - plane.distance;
+
+	return fabsf(distance) <= pLen;
+}
+
+// Overlap on axis methods
 bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis)
 {
 	Interval a = GetInterval(aabb, axis);
 	Interval b = GetInterval(obb, axis);
+
+	return ((b.min <= a.max) && (a.min <= b.max));
+}
+
+bool OverlapOnAxis(const OBB& obb1, const OBB& obb2, const vec3& axis)
+{
+	Interval a = GetInterval(obb1, axis);
+	Interval b = GetInterval(obb2, axis);
 
 	return ((b.min <= a.max) && (a.min <= b.max));
 }
