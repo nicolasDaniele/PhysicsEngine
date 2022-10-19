@@ -502,15 +502,15 @@ float Raycast(const AABB& aabb, const Ray& ray)
 
 	if (testRay.direction.x == 0.0f)
 	{
-		testRay.direction.x = 0.001f;
+		testRay.direction.x = 0.00001f;
 	}
 	if (testRay.direction.y == 0.0f)
 	{
-		testRay.direction.y = 0.001f;
+		testRay.direction.y = 0.00001f;
 	}
 	if (testRay.direction.z == 0.0f)
 	{
-		testRay.direction.z = 0.001f;
+		testRay.direction.z = 0.00001f;
 	}
 
 	float t1 = (min.x - testRay.origin.x) / testRay.direction.x;
@@ -545,4 +545,90 @@ float Raycast(const AABB& aabb, const Ray& ray)
 
 	// Intersection
 	return tmin;
+}
+
+float Raycast(const OBB& obb, const Ray& ray)
+{
+	const float* orientation = obb.orientation.asArray;
+	const float* size = obb.size.asArray;
+
+	vec3 xAxis(orientation[0], orientation[1], orientation[2]);
+	vec3 yAxis(orientation[3], orientation[4], orientation[5]);
+	vec3 zAxis(orientation[6], orientation[7], orientation[8]);
+
+	vec3 p = obb.position - ray.origin;
+
+	vec3 f (
+		Dot(xAxis, ray.direction),
+		Dot(yAxis, ray.direction),
+		Dot(zAxis, ray.direction)
+		);
+
+	vec3 e (
+		Dot(xAxis, p),
+		Dot(yAxis, p),
+		Dot(zAxis, p)
+		);
+
+	float t[6] = { 0, 0, 0, 0, 0, 0 };
+	for (int i = 0; i < 3; ++i)
+	{
+		if (CMP(f[i], 0))
+		{
+			if (-e[i] - size[i] > 0 || -e[i] + size[i] < 0)
+			{
+				return -1;
+			}
+
+			// Avoid dividing by 0
+			f[i] = 0.00001f;
+		}
+
+		t[i * 2 + 0] = (e[i] + size[i]) / f[i]; // min
+		t[i * 2 + 1] = (e[i] - size[i]) / f[i]; // max
+	}
+
+	float tmin = fmaxf(
+		fmaxf(fminf(t[0], t[1]), fminf(t[2], t[3])),
+		fminf(t[4], t[5]));
+
+	float tmax = fminf(
+		fminf(fmaxf(t[0], t[1]), fmaxf(t[2], t[3])),
+		fmaxf(t[4], t[5]));
+
+	if (tmax < 0) // No intersection
+	{
+		return -1;
+	}
+
+	if (tmin < tmax) // No intersection
+	{
+		return -1;
+	}
+
+	if (tmin < 0.0f) // Ray starts inside OBB
+	{
+		return tmax;
+	}
+
+	return tmin; // Normal intersection
+}
+
+float Raycast(const Plane& plane, const Ray& ray)
+{
+	float nd = Dot(ray.direction, plane.normal);
+	float pn = Dot(ray.origin, plane.normal);
+
+	if (nd >= 0.0f)
+	{
+		return -1; 
+	}
+
+	float t = (plane.distance - pn) / nd;
+	if (t >= 0.0f)
+	{
+		return t;
+	}
+
+	return -1;
 }

@@ -174,5 +174,7 @@ Interval GetInterval(const OBB& obb, const vec3& axis);
 // Raycast methods
 float Raycast(const Sphere& sphere, const Ray& ray);
 float Raycast(const AABB& aabb, const Ray& ray);
+float Raycast(const OBB& obb, const Ray& ray);
+float Raycast(const Plane& plane, const Ray& ray);
 
 #endif
