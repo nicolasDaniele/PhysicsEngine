@@ -171,6 +171,8 @@ bool OverlapOnAxis(const OBB& obb1, const OBB& obb2, const vec3& axis);
 Interval GetInterval(const AABB& aabb, const vec3& axis);
 Interval GetInterval(const OBB& obb, const vec3& axis);
 
-
+// Raycast methods
+float Raycast(const Sphere& sphere, const Ray& ray);
+float Raycast(const AABB& aabb, const Ray& ray);
 
 #endif

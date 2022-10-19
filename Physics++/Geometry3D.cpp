@@ -466,3 +466,83 @@ Interval GetInterval(const OBB& obb, const vec3& axis)
 
 	return result;
 }
+
+// Raycast methods
+float Raycast(const Sphere& sphere, const Ray& ray)
+{
+	vec3 e = sphere.position - ray.origin;
+	float rSq = sphere.radius * sphere.radius;
+	float eSq = MagnitudeSq(e);
+	float a = Dot(e, ray.direction);
+
+	float bSq = eSq - (a * a);
+	float f = sqrt(rSq - bSq);
+
+	if (rSq - (eSq - (a * a)) < 0.0f) // No collision
+	{
+		return -1;
+	}
+	else if (eSq < rSq) // Ray starts inside the sphere
+	{
+		return a + f;
+	}
+	else // Normal intersection
+	{
+		return a - f;
+	}
+}
+
+float Raycast(const AABB& aabb, const Ray& ray)
+{
+	vec3 min = GetMin(aabb);
+	vec3 max = GetMax(aabb);
+
+	// Avoid division for 0!
+	Ray testRay = ray;
+
+	if (testRay.direction.x == 0.0f)
+	{
+		testRay.direction.x = 0.001f;
+	}
+	if (testRay.direction.y == 0.0f)
+	{
+		testRay.direction.y = 0.001f;
+	}
+	if (testRay.direction.z == 0.0f)
+	{
+		testRay.direction.z = 0.001f;
+	}
+
+	float t1 = (min.x - testRay.origin.x) / testRay.direction.x;
+	float t2 = (max.x - testRay.origin.x) / testRay.direction.x;
+	float t3 = (min.y - testRay.origin.y) / testRay.direction.y;
+	float t4 = (max.y - testRay.origin.y) / testRay.direction.y;
+	float t5 = (min.z - testRay.origin.z) / testRay.direction.z;
+	float t6 = (max.z - testRay.origin.z) / testRay.direction.z;
+
+	float tmin = fmaxf(
+		fmaxf(fminf(t1, t2), fminf(t3, t4)), 
+		fminf(t5, t6));
+
+	float tmax = fminf(
+		fminf(fmaxf(t1, t2), fmaxf(t3, t4)),
+		fmaxf(t5, t6));
+
+	if (tmax < 0) // No intersection
+	{
+		return -1;
+	}
+
+	if (tmin > tmax) // No intersection
+	{
+		return -1;
+	}
+
+	if (tmin < 0) // Ray starts inside AABB
+	{
+		return tmax;
+	}
+
+	// Intersection
+	return tmin;
+}
