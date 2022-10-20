@@ -632,3 +632,49 @@ float Raycast(const Plane& plane, const Ray& ray)
 
 	return -1;
 }
+
+// Linecast methods
+bool Linecast(const Sphere& sphere, const Line& line)
+{
+	Point closest = ClosestPoint(line, sphere.position);
+	float distSq = MagnitudeSq(sphere.position - closest);
+	
+	return distSq <= (sphere.radius * sphere.radius);
+}
+
+bool Linecast(const AABB& aabb, const Line& line)
+{
+	Ray ray;
+	ray.origin = line.start;
+	ray.direction = Normalized(line.end - line.start);
+	float t = Raycast(aabb, ray);
+
+	return t >= 0 && t * t <= LenghtSq(line);
+}
+
+bool Linecast(const OBB& obb, const Line& line)
+{
+	Ray ray;
+	ray.origin = line.start;
+	ray.direction = Normalized(line.end - line.start);
+	float t = Raycast(obb, ray);
+
+	return t >= 0 && t * t <= LenghtSq(line);
+}
+
+bool Linecast(const Plane& plane, const Line& line)
+{
+	vec3 ab = line.end - line.start;
+
+	float nA = Dot(plane.normal, line.start);
+	float nAB = Dot(plane.normal, ab);
+
+	// Avoid divide by 0
+	if (nAB == 0.0f)
+	{
+		nAB = 0.0001f;
+	}
+	float t = (plane.distance - nA) / nAB;
+	
+	return t >= 0.0f && t <= 1.0f;
+}

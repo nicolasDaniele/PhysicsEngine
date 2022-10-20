@@ -176,5 +176,10 @@ float Raycast(const Sphere& sphere, const Ray& ray);
 float Raycast(const AABB& aabb, const Ray& ray);
 float Raycast(const OBB& obb, const Ray& ray);
 float Raycast(const Plane& plane, const Ray& ray);
+// Linecast methods
+bool Linecast(const Sphere& sphere, const Line& line);
+bool Linecast(const AABB& aabb, const Line& line);
+bool Linecast(const OBB& obb, const Line& line);
+bool Linecast(const Plane& plane, const Line& line);
 
 #endif
