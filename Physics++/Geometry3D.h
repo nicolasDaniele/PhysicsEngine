@@ -12,6 +12,7 @@ typedef vec3 Point;
 #define OBBAABB(obb, aabb) AABBOBB(aabb, obb)
 #define PlaneAABB(plane, aabb) AABBPlane(aabb, plane)
 #define PlaneOBB(plane, obb) OBBPlane(obb, plane)
+#define SphereTriangle(sphere, triangle) TriangleSphere(triangle, sphere)
 
 typedef struct Line 
 {
@@ -187,6 +188,7 @@ bool PointInTriangle(const Point& point, const Triangle& triangle);
 Plane FromTriangle(const Triangle& triangle);
 Point ClosestPoint(const Triangle& triangle, const Point& point);
 
+bool TriangleSphere(const Triangle& triangle, const Sphere& sphere);
 
 
 

@@ -741,3 +741,11 @@ Point ClosestPoint(const Triangle& triangle, const Point& point)
 
 	return c3;
 }
+
+bool TriangleSphere(const Triangle& triangle, const Sphere& sphere)
+{
+	Point closest = ClosestPoint(triangle, sphere.position);
+	float magSq = MagnitudeSq(closest - sphere.position);
+
+	return magSq <= (sphere.radius * sphere.radius);
+}
