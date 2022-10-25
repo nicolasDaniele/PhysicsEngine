@@ -678,3 +678,66 @@ bool Linecast(const Plane& plane, const Line& line)
 	
 	return t >= 0.0f && t <= 1.0f;
 }
+
+// Triangle methods
+bool PointInTriangle(const Point& point, const Triangle& triangle)
+{
+	vec3 a = triangle.a - point;
+	vec3 b = triangle.b - point;
+	vec3 c = triangle.c - point;
+
+	vec3 normPBC = Cross(b, c);
+	vec3 normPCA = Cross(c, a);
+	vec3 normPAB = Cross(a, b);
+
+	if (Dot(normPCA, normPAB) < 0.0f)
+	{
+		return false;
+	}
+	else if (Dot(normPBC, normPAB) < 0.0f)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+Plane FromTriangle(const Triangle& triangle)
+{
+	Plane result;
+	result.normal = Normalized(Cross(
+		triangle.b - triangle.a, triangle.c- triangle. a));
+	result.distance = Dot(result.normal, triangle.a);
+
+	return result;
+}
+
+Point ClosestPoint(const Triangle& triangle, const Point& point)
+{
+	Plane plane = FromTriangle(triangle);
+	Point closest = ClosestPoint(plane, point);
+
+	if (PointInTriangle(closest, triangle))
+	{
+		return closest;
+	}
+
+	Point c1 = ClosestPoint(Line(triangle.a, triangle.b), point);
+	Point c2 = ClosestPoint(Line(triangle.b, triangle.c), point);
+	Point c3 = ClosestPoint(Line(triangle.c, triangle.a), point);
+
+	float magSq1 = MagnitudeSq(point - c1);
+	float magSq2 = MagnitudeSq(point - c2);
+	float magSq3 = MagnitudeSq(point - c3);
+
+	if (magSq1 < magSq2 && magSq1 < magSq3)
+	{
+		return c1;
+	}
+	else if (magSq2 < magSq1 && magSq2 < magSq3)
+	{
+		return c2;
+	}
+
+	return c3;
+}

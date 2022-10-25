@@ -182,4 +182,12 @@ bool Linecast(const AABB& aabb, const Line& line);
 bool Linecast(const OBB& obb, const Line& line);
 bool Linecast(const Plane& plane, const Line& line);
 
+// Triangle methods
+bool PointInTriangle(const Point& point, const Triangle& triangle);
+Plane FromTriangle(const Triangle& triangle);
+Point ClosestPoint(const Triangle& triangle, const Point& point);
+
+
+
+
 #endif
