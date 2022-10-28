@@ -13,6 +13,7 @@ typedef vec3 Point;
 #define PlaneAABB(plane, aabb) AABBPlane(aabb, plane)
 #define PlaneOBB(plane, obb) OBBPlane(obb, plane)
 #define SphereTriangle(sphere, triangle) TriangleSphere(triangle, sphere)
+#define AABBTriangle(aabb, triangle) TriangleAABB(triangle, aabb)
 
 typedef struct Line 
 {
@@ -187,9 +188,11 @@ bool Linecast(const Plane& plane, const Line& line);
 bool PointInTriangle(const Point& point, const Triangle& triangle);
 Plane FromTriangle(const Triangle& triangle);
 Point ClosestPoint(const Triangle& triangle, const Point& point);
+Interval GetInterval(const Triangle& triangle, const vec3& axis);
+bool OverlapOnAxis(const AABB& aabb, const Triangle& triangle, const vec3& axis);
 
 bool TriangleSphere(const Triangle& triangle, const Sphere& sphere);
-
+bool TriangleAABB(const Triangle& triangle, const AABB& aabb);
 
 
 #endif

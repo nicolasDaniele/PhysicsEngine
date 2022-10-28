@@ -742,10 +742,64 @@ Point ClosestPoint(const Triangle& triangle, const Point& point)
 	return c3;
 }
 
+Interval GetInterval(const Triangle& triangle, const vec3& axis)
+{
+	Interval result;
+	result.min = Dot(axis, triangle.points[0]);
+	result.max = result.min;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		float value = Dot(axis, triangle.points[i]);
+		result.min = fminf(result.min, value);
+		result.max = fmaxf(result.max, value);
+	}
+
+	return result;
+}
+
+bool OverlapOnAxis(const AABB& aabb, const Triangle& triangle, const vec3& axis)
+{
+	Interval a = GetInterval(aabb, axis);
+	Interval b = GetInterval(triangle, axis);
+
+	return ((b.min <= a.max) && (a.min <= b.max));
+}
+
 bool TriangleSphere(const Triangle& triangle, const Sphere& sphere)
 {
 	Point closest = ClosestPoint(triangle, sphere.position);
 	float magSq = MagnitudeSq(closest - sphere.position);
 
 	return magSq <= (sphere.radius * sphere.radius);
+}
+
+bool TriangleAABB(const Triangle& triangle, const AABB& aabb)
+{
+	vec3 f0 = triangle.b - triangle.a;
+	vec3 f1 = triangle.c - triangle.b;
+	vec3 f2 = triangle.a - triangle.c;
+
+	vec3 u0(1.0f, 0.0f, 0.0f);
+	vec3 u1(0.0f, 1.0f, 0.0f);
+	vec3 u2(0.0f, 0.0f, 1.0f);
+
+	vec3 test[13] =
+	{
+		u0, u1, u2,
+		Cross(f0, f1),
+		Cross(u0, f0), Cross(u0, f1), Cross(u0, f2),
+		Cross(u1, f0), Cross(u1, f1), Cross(u1, f2),
+		Cross(u2, f0), Cross(u2, f1), Cross(u2, f2)
+	};
+
+	for (int i = 0; i < 13; ++i)
+	{
+		if (!OverlapOnAxis(aabb, triangle, test[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
