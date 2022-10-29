@@ -14,6 +14,8 @@ typedef vec3 Point;
 #define PlaneOBB(plane, obb) OBBPlane(obb, plane)
 #define SphereTriangle(sphere, triangle) TriangleSphere(triangle, sphere)
 #define AABBTriangle(aabb, triangle) TriangleAABB(triangle, aabb)
+#define OBBTriangle(obb, triangle) TriangleOBB(triangle, obb)
+#define PlaneTriangle(plane, triangle) TrianglePlane(triangle, plane)
 
 typedef struct Line 
 {
@@ -190,9 +192,13 @@ Plane FromTriangle(const Triangle& triangle);
 Point ClosestPoint(const Triangle& triangle, const Point& point);
 Interval GetInterval(const Triangle& triangle, const vec3& axis);
 bool OverlapOnAxis(const AABB& aabb, const Triangle& triangle, const vec3& axis);
+bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const vec3& axis);
 
+// Intersection tests
 bool TriangleSphere(const Triangle& triangle, const Sphere& sphere);
 bool TriangleAABB(const Triangle& triangle, const AABB& aabb);
+bool TriangleOBB(const Triangle& triangle, const OBB& obb);
+bool TrianglePlane(const Triangle& triangle, const Plane& plane);
 
 
 #endif
