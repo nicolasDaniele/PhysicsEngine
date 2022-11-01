@@ -633,6 +633,29 @@ float Raycast(const Plane& plane, const Ray& ray)
 	return -1;
 }
 
+float Raycast(const Triangle& triangle, const Ray& ray)
+{
+	Plane plane = FromTriangle(triangle);
+	float t = Raycast(plane, ray);
+
+	if (t < 0.0f)
+	{
+		return t;
+	}
+
+	Point result = ray.origin + ray.direction * t;
+	vec3 barycentric = Barycentric(result, triangle);
+
+	if (barycentric.x >= 0.0f && barycentric.x <= 1.0f &&
+		barycentric.y >= 0.0f && barycentric.y <= 1.0f &&
+		barycentric.z >= 0.0f && barycentric.z <= 1.0f)
+	{
+		return t;
+	}
+
+	return -1;
+}
+
 // Linecast methods
 bool Linecast(const Sphere& sphere, const Line& line)
 {
@@ -677,6 +700,17 @@ bool Linecast(const Plane& plane, const Line& line)
 	float t = (plane.distance - nA) / nAB;
 	
 	return t >= 0.0f && t <= 1.0f;
+}
+
+bool Linecast(const Triangle& triangle, const Line& line)
+{
+	Ray ray;
+	ray.origin = line.start;
+	ray.origin = Normalized(line.end - line.start);
+
+	float t = Raycast(triangle, ray);
+
+	return t >= 0.0f && t * t <= LenghtSq(line);
 }
 
 // Triangle methods
@@ -774,6 +808,63 @@ bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const vec3& axis)
 	return ((b.min <= a.max) && (a.min <= b.max));
 }
 
+bool OverlapOnAxis(const Triangle& triangle1, const Triangle& triangle2, const vec3& axis)
+{
+	Interval a = GetInterval(triangle1, axis);
+	Interval b = GetInterval(triangle2, axis);
+
+	return ((b.min <= a.max) && (a.min <= b.max));
+}
+
+vec3 SATCrossEdge(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
+{
+	vec3 ab = a - b;
+	vec3 cd = c - d;
+	vec3 result = Cross(ab, cd);
+
+	if (!CMP(MagnitudeSq(result), 0))
+	{
+		return result;
+	}
+	else
+	{
+		vec3 axis = Cross(ab, c - a);
+		result = Cross(ab, axis);
+
+		if (!CMP(MagnitudeSq(result), 0))
+		{
+			return result;
+		}
+	}
+
+	return vec3();
+}
+
+vec3 Barycentric(const Point& point, const Triangle& triangle)
+{
+	vec3 ap = point - triangle.a;
+	vec3 bp = point - triangle.b;
+	vec3 cp = point - triangle.c;
+
+	vec3 ab = triangle.b - triangle.a;
+	vec3 ac = triangle.c - triangle.a;
+
+	vec3 bc = triangle.c - triangle.b;
+	vec3 cb = triangle.b - triangle.c;
+	vec3 ca = triangle.a - triangle.c;
+
+	vec3 v = ab - Project(ab, cb);
+	float a = 1.0f - (Dot(v, ap) / Dot(v, ab));
+
+	v = bc - Project(bc, ac);
+	float b = 1.0f - (Dot(v, bp) / Dot(v, bc));
+
+	v = ca - Project(ca, ab);
+	float c = 1.0f - (Dot(v, cp) / Dot(v, ca));
+
+	return vec3(a, b, c);
+}
+
 // Intersection tests
 bool TriangleSphere(const Triangle& triangle, const Sphere& sphere)
 {
@@ -863,6 +954,70 @@ bool TrianglePlane(const Triangle& triangle, const Plane& plane)
 	if (side1 < 0 && side2 < 0 && side3 < 0)
 	{
 		return false;
+	}
+
+	return true;
+}
+
+bool TriangleTriangle(const Triangle& triangle1, const Triangle& triangle2)
+{
+	vec3 t1_f0 = triangle1.b - triangle1.a;
+	vec3 t1_f1 = triangle1.c - triangle1.b;
+	vec3 t1_f2 = triangle1.a - triangle1.c;
+
+	vec3 t2_f0 = triangle2.b - triangle2.a;
+	vec3 t2_f1 = triangle2.c - triangle2.b;
+	vec3 t2_f2 = triangle2.a - triangle2.c;
+
+	vec3 axisToTest[] =
+	{
+		Cross(t1_f0,t1_f1),
+		Cross(t2_f0,t2_f1),
+		Cross(t2_f0,t1_f0), Cross(t2_f0,t1_f1), Cross(t2_f0,t1_f2),
+		Cross(t2_f1,t1_f0), Cross(t2_f1,t1_f1), Cross(t2_f1,t1_f2),
+		Cross(t2_f2,t1_f0), Cross(t2_f2,t1_f1), Cross(t2_f2,t1_f2)
+	};
+
+	for (int i = 0; i < 11; ++i)
+	{
+		if (!OverlapOnAxis(triangle1, triangle2, axisToTest[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool TriangleTriangleRobust(const Triangle& triangle1, const Triangle& triangle2)
+{
+	vec3 axisToTest[] =
+	{
+		SATCrossEdge(triangle1.a, triangle1.b, triangle1.b, triangle1.c),
+		SATCrossEdge(triangle2.a, triangle2.b, triangle2.b, triangle2.c),
+
+		SATCrossEdge(triangle2.a, triangle2.b, triangle1.a, triangle1.b),
+		SATCrossEdge(triangle2.a, triangle2.b, triangle1.b, triangle1.c),
+		SATCrossEdge(triangle2.a, triangle2.b, triangle1.c, triangle1.a),
+
+		SATCrossEdge(triangle2.b, triangle2.c, triangle1.a, triangle1.b),
+		SATCrossEdge(triangle2.b, triangle2.c, triangle1.b, triangle1.c),
+		SATCrossEdge(triangle2.b, triangle2.c, triangle1.c, triangle1.a),
+
+		SATCrossEdge(triangle2.c, triangle2.a, triangle1.a, triangle1.b),
+		SATCrossEdge(triangle2.c, triangle2.a, triangle1.b, triangle1.c),
+		SATCrossEdge(triangle2.c, triangle2.a, triangle1.c, triangle1.a)
+	};
+
+	for (int i = 0; i < 11; ++i)
+	{
+		if (!OverlapOnAxis(triangle1, triangle2, axisToTest[i]))
+		{
+			if (!CMP(MagnitudeSq(axisToTest[i]), 0))
+			{
+				return false;
+			}
+		}
 	}
 
 	return true;

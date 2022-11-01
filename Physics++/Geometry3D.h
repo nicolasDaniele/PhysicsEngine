@@ -180,11 +180,14 @@ float Raycast(const Sphere& sphere, const Ray& ray);
 float Raycast(const AABB& aabb, const Ray& ray);
 float Raycast(const OBB& obb, const Ray& ray);
 float Raycast(const Plane& plane, const Ray& ray);
+float Raycast(const Triangle& triangle, const Ray& ray);
+
 // Linecast methods
 bool Linecast(const Sphere& sphere, const Line& line);
 bool Linecast(const AABB& aabb, const Line& line);
 bool Linecast(const OBB& obb, const Line& line);
 bool Linecast(const Plane& plane, const Line& line);
+bool Linecast(const Triangle& triangle, const Line& line);
 
 // Triangle methods
 bool PointInTriangle(const Point& point, const Triangle& triangle);
@@ -193,12 +196,16 @@ Point ClosestPoint(const Triangle& triangle, const Point& point);
 Interval GetInterval(const Triangle& triangle, const vec3& axis);
 bool OverlapOnAxis(const AABB& aabb, const Triangle& triangle, const vec3& axis);
 bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const vec3& axis);
+bool OverlapOnAxis(const Triangle& triangle1, const Triangle& triangle2, const vec3& axis);
+vec3 SATCrossEdge(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
+vec3 Barycentric(const Point& point, const Triangle& triangle);
 
 // Intersection tests
 bool TriangleSphere(const Triangle& triangle, const Sphere& sphere);
 bool TriangleAABB(const Triangle& triangle, const AABB& aabb);
 bool TriangleOBB(const Triangle& triangle, const OBB& obb);
 bool TrianglePlane(const Triangle& triangle, const Plane& plane);
-
+bool TriangleTriangle(const Triangle& triangle1, const Triangle& triangle2);
+bool TriangleTriangleRobust(const Triangle& triangle1, const Triangle& triangle2);
 
 #endif
