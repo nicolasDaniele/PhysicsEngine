@@ -113,6 +113,30 @@ typedef struct Interval
 	float max;
 } Interval;
 
+typedef struct Mesh
+{
+	int numTriangles;
+	
+	union
+	{
+		Triangle* triangles;
+		Point* vertices;
+		float* values;
+	};
+
+	BVHNode* accelerator;
+	Mesh() : numTriangles(0), values(0), accelerator(0) { }
+} Mesh;
+
+typedef struct BVHNode
+{
+	AABB bounds;
+	BVHNode* children;
+	int numTriangles;
+	int* triangles;
+	BVHNode() : children(0), numTriangles(0), triangles(0) { }
+} BVHNode;
+
 // Line methods
 float Lenght(const Line& line);
 float LenghtSq(const Line& line);
