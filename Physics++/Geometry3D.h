@@ -147,11 +147,10 @@ Ray FromPoints(const Point& from, const Point& to);
 // AABB methods
 vec3 GetMin(const AABB& aabb);
 vec3 GetMax(const AABB& aabb);
-AABB FormMinMax(const vec3& min, const vec3& max);
+AABB FromMinMax(const vec3& min, const vec3& max);
 
 // Plane method
 float PlaneEquation(const Point& point, const Plane& plane);
-
 
 // Point test methods
 // Point-Sphere
@@ -177,7 +176,6 @@ Point ClosestPoint(const Line& line, const Point& point);
 // Point-Ray
 bool PointOnRay(const Point& point, const Ray& ray);
 Point ClosestPoint(const Ray& ray, const Point& point);
-
 
 // 3D Shape Intersections
 bool SphereShpere(const Sphere& sphere1, const Sphere& sphere2);
@@ -231,5 +229,13 @@ bool TriangleOBB(const Triangle& triangle, const OBB& obb);
 bool TrianglePlane(const Triangle& triangle, const Plane& plane);
 bool TriangleTriangle(const Triangle& triangle1, const Triangle& triangle2);
 bool TriangleTriangleRobust(const Triangle& triangle1, const Triangle& triangle2);
+
+// Mesh Methods
+void AccelarateMesh(Mesh& mesh);
+void SplitBVHNode(BVHNode* node, const Mesh& model, int depth);
+void FreeBVHNode(BVHNode* node);
+
+
+
 
 #endif
