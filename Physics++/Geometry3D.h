@@ -255,6 +255,12 @@ void FreeBVHNode(BVHNode* node);
 // Model Methods
 mat4 GetWorldMatrix(const Model& model);
 OBB GetOBB(const Model& model);
-
+float ModelRay(const Model& model, const Ray& ray);
+bool LineTest(const Model& model, const Line& line);
+bool ModelSphere(const Model& model, const Sphere& sphere);
+bool ModelAABB(const Model& model, const AABB& aabb);
+bool ModelOBB(const Model& model, const OBB& obb);
+bool ModelPlane(const Model& model, const Plane& plane);
+bool ModelTriangle(const Model& model, const Triangle& triangle);
 
 #endif
