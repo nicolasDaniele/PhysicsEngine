@@ -4,6 +4,30 @@
 
 #define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
 
+void Model::SetContent(Mesh* mesh)
+{
+	content = mesh;
+
+	if (content != 0)
+	{
+		vec3 min = mesh->vertices[0];
+		vec3 max = mesh->vertices[0];
+
+		for (int i = 1; i < mesh->numTriangles * 3; ++i)
+		{
+			min.x = fminf(mesh->vertices[i].x, min.x);
+			min.y = fminf(mesh->vertices[i].y, min.y);
+			min.z = fminf(mesh->vertices[i].z, min.z);
+
+			max.x = fmaxf(mesh->vertices[i].x, max.x);
+			max.y = fmaxf(mesh->vertices[i].y, max.y);
+			max.z = fmaxf(mesh->vertices[i].z, max.z);
+		}
+
+		bounds = FromMinMax(min, max);
+	}
+}
+
 // Line methods
 float Lenght(const Line& line)
 {
@@ -1180,26 +1204,35 @@ void FreeBVHNode(BVHNode* node)
 	}
 }
 
-void Model::SetContent(Mesh* mesh)
+// Model Methods
+mat4 GetWorldMatrix(const Model& model)
 {
-	content = mesh;
+	mat4 translation = Translation(model.position);
+	mat4 rotation = Rotation(
+		model.rotation.x, 
+		model.rotation.y, 
+		model.rotation.z);
 
-	if (content != 0)
+	mat4 localMat = rotation * translation;
+	
+	mat4 parentMat;
+	if (model.parent != 0)
 	{
-		vec3 min = mesh->vertices[0];
-		vec3 max = mesh->vertices[0];
-
-		for (int i = 1; i < mesh->numTriangles * 3; ++i)
-		{
-			min.x = fminf(mesh->vertices[i].x, min.x);
-			min.y = fminf(mesh->vertices[i].y, min.y);
-			min.z = fminf(mesh->vertices[i].z, min.z);
-
-			max.x = fmaxf(mesh->vertices[i].x, max.x);
-			max.y = fmaxf(mesh->vertices[i].y, max.y);
-			max.z = fmaxf(mesh->vertices[i].z, max.z);
-		}
-
-		bounds = FromMinMax(min, max);
+		parentMat = GetWorldMatrix(*model.parent);
 	}
+
+	return localMat * parentMat;
+}
+
+OBB GetOBB(const Model& model)
+{
+	mat4 world = GetWorldMatrix(model);
+	AABB aabb = model.GetBounds();
+	OBB obb;
+
+	obb.size = aabb.size;
+	obb.position = MultiplyPoint(aabb.position, world);
+	obb.orientation = Cut(world, 3, 3);
+
+	return obb;
 }
