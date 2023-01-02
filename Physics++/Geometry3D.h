@@ -236,6 +236,22 @@ void SplitBVHNode(BVHNode* node, const Mesh& model, int depth);
 void FreeBVHNode(BVHNode* node);
 
 
+class Model
+{
+protected:
+	Mesh* content;
+	AABB bounds;
 
+public:
+	vec3 position;
+	vec3 rotation;
+	Model* parent;
+
+	inline Model() : parent(0) { }
+	inline Mesh* GetMesh() const { return content; }
+	inline AABB GetBounds() const { return bounds; }
+	void SetContent(Mesh* mesh);
+
+};
 
 #endif

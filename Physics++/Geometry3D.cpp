@@ -1179,3 +1179,27 @@ void FreeBVHNode(BVHNode* node)
 		}
 	}
 }
+
+void Model::SetContent(Mesh* mesh)
+{
+	content = mesh;
+
+	if (content != 0)
+	{
+		vec3 min = mesh->vertices[0];
+		vec3 max = mesh->vertices[0];
+
+		for (int i = 1; i < mesh->numTriangles * 3; ++i)
+		{
+			min.x = fminf(mesh->vertices[i].x, min.x);
+			min.y = fminf(mesh->vertices[i].y, min.y);
+			min.z = fminf(mesh->vertices[i].z, min.z);
+
+			max.x = fmaxf(mesh->vertices[i].x, max.x);
+			max.y = fmaxf(mesh->vertices[i].y, max.y);
+			max.z = fmaxf(mesh->vertices[i].z, max.z);
+		}
+
+		bounds = FromMinMax(min, max);
+	}
+}
