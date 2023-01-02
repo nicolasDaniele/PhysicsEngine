@@ -904,6 +904,37 @@ bool TriangleAABB(const Triangle& triangle, const AABB& aabb)
 	return true;
 }
 
+bool TriangleOBB(const Triangle& triangle, const OBB& obb)
+{
+	vec3 f0 = triangle.b - triangle.a;
+	vec3 f1 = triangle.c - triangle.b;
+	vec3 f2 = triangle.a - triangle.c;
+
+	const float* orientation = obb.orientation.asArray;
+	vec3 u0(orientation[0], orientation[1], orientation[2]);
+	vec3 u1(orientation[3], orientation[4], orientation[5]);
+	vec3 u2(orientation[6], orientation[7], orientation[8]);
+
+	vec3 test[13] =
+	{
+		u0, u1, u2, 
+		Cross(f0, f1),
+		Cross(u0, f0), Cross(u0, f1), Cross(u0, f2),
+		Cross(u1, f0), Cross(u1, f1), Cross(u1, f2),
+		Cross(u2, f0), Cross(u2, f1), Cross(u2, f2)
+	};
+
+	for (int i = 0; i < 13; ++i)
+	{
+		if (!OverlapOnAxis(obb, triangle, test[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const vec3& axis)
 {
 	vec3 f0 = triangle.b - triangle.a;
