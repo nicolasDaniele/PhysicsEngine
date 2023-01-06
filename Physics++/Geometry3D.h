@@ -251,6 +251,8 @@ bool TriangleTriangleRobust(const Triangle& triangle1, const Triangle& triangle2
 void AccelarateMesh(Mesh& mesh);
 void SplitBVHNode(BVHNode* node, const Mesh& model, int depth);
 void FreeBVHNode(BVHNode* node);
+float MeshRay(const Mesh& mesh, const Ray& ray);
+bool MeshAABB(const Mesh& mesh, const AABB& aabb);
 
 // Model Methods
 mat4 GetWorldMatrix(const Model& model);

@@ -1,6 +1,7 @@
 #include "Geometry3D.h"
 #include <cmath>
 #include <cfloat>
+#include <list>
 
 #define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
 
@@ -1204,6 +1205,105 @@ void FreeBVHNode(BVHNode* node)
 	}
 }
 
+float MeshRay(const Mesh& mesh, const Ray& ray)
+{
+	if (mesh.accelerator == 0)
+	{
+		for (int i = 0; i < mesh.numTriangles; ++i)
+		{
+			float result = Raycast(mesh.triangles[i], ray);
+			if (result >= 0)
+			{
+				return result;
+			}
+		}
+	}
+	else
+	{
+		std::list<BVHNode*> toProcess;
+		toProcess.push_front(mesh.accelerator);
+
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = *(toProcess.begin());
+			toProcess.erase(toProcess.begin());
+
+			if (!iterator->numTriangles >= 0)
+			{
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					float r = Raycast(mesh.triangles[iterator->triangles[i]], ray);
+					if (r >= 0)
+					{
+						return r;
+					}
+				}
+			}
+
+			if (iterator->children != 0)
+			{
+				for (int i = 8 - 1; i >= 0; --i)
+				{
+					if (Raycast(iterator->children[i].bounds, ray) >= 0)
+					{
+						toProcess.push_front(&iterator->children[i]);
+					}
+				}
+			}
+		}
+	}
+
+	return -1;
+}
+
+bool MeshAABB(const Mesh& mesh, const AABB& aabb)
+{
+	if (mesh.accelerator == 0)
+	{
+		for (int i = 0; i < mesh.numTriangles; ++i)
+		{
+			if (TriangleAABB(mesh.triangles[i], aabb))
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		std::list<BVHNode*> toProcess;
+		toProcess.push_front(mesh.accelerator);
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = *(toProcess.begin());
+			toProcess.erase(toProcess.begin());
+
+			if (iterator->numTriangles >= 0)
+			{
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					if (TriangleAABB(mesh.triangles[iterator->triangles[i]], aabb))
+					{
+						return true;
+					}
+				}
+			}
+
+			if (iterator->children != 0)
+			{
+				for (int i = 8 - 1; i >= 0; --i)
+				{
+					if (AABBAABB(iterator->children[i].bounds, aabb))
+					{
+						toProcess.push_front(&iterator->children[i]);
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 // Model Methods
 mat4 GetWorldMatrix(const Model& model)
 {
@@ -1236,3 +1336,27 @@ OBB GetOBB(const Model& model)
 
 	return obb;
 }
+
+float ModelRay(const Model& model, const Ray& ray)
+{
+	mat4 world = GetWorldMatrix(model);
+	mat4 inv = Inverse(world);
+	Ray local;
+	local.origin = MultiplyPoint(ray.origin, inv);
+	local.direction = MultiplyVector(ray.direction, inv);
+	local.NormalizeDirection();
+
+	if (model.GetMesh() != 0)
+	{
+		return MeshRay(*(model.GetMesh()), local);
+	}
+
+	return -1;
+}
+
+bool LineTest(const Model& model, const Line& line);
+bool ModelSphere(const Model& model, const Sphere& sphere);
+bool ModelAABB(const Model& model, const AABB& aabb);
+bool ModelOBB(const Model& model, const OBB& obb);
+bool ModelPlane(const Model& model, const Plane& plane);
+bool ModelTriangle(const Model& model, const Triangle& triangle);
