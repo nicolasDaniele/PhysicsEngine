@@ -238,7 +238,6 @@ bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const vec3& axis);
 bool OverlapOnAxis(const Triangle& triangle1, const Triangle& triangle2, const vec3& axis);
 vec3 SATCrossEdge(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
 vec3 Barycentric(const Point& point, const Triangle& triangle);
-
 // Intersection tests
 bool TriangleSphere(const Triangle& triangle, const Sphere& sphere);
 bool TriangleAABB(const Triangle& triangle, const AABB& aabb);
@@ -252,7 +251,12 @@ void AccelarateMesh(Mesh& mesh);
 void SplitBVHNode(BVHNode* node, const Mesh& model, int depth);
 void FreeBVHNode(BVHNode* node);
 float MeshRay(const Mesh& mesh, const Ray& ray);
+bool LineTest(const Mesh& mesh, const Line& line);
+bool MeshSphere(const Mesh& mesh, const Sphere& sphere);
 bool MeshAABB(const Mesh& mesh, const AABB& aabb);
+bool MeshOBB(const Mesh& mesh, const OBB& obb);
+bool MeshPlane(const Mesh& mesh, const Plane& plane);
+bool MeshTriangle(const Mesh& mesh, const Triangle& triangle);
 
 // Model Methods
 mat4 GetWorldMatrix(const Model& model);

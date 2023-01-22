@@ -1256,6 +1256,102 @@ float MeshRay(const Mesh& mesh, const Ray& ray)
 	return -1;
 }
 
+bool LineTest(const Mesh& mesh, const Line& line)
+{
+	if (mesh.accelerator == 0)
+	{
+		for (int i = 0; i < mesh.numTriangles; ++i)
+		{
+			if (Linecast(mesh.triangles[i], line))
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		std::list<BVHNode*> toProcess;
+		toProcess.push_front(mesh.accelerator);
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = *(toProcess.begin());
+			toProcess.erase(toProcess.begin());
+
+			if (iterator->numTriangles >= 0)
+			{
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					if (Linecast(mesh.triangles[i], line))
+					{
+						return true;
+					}
+				}
+			}
+
+			if (iterator->children != 0)
+			{
+				for (int i = 8 - 1; i >= 0; --i)
+				{
+					if (Linecast(mesh.triangles[i], line))
+					{
+						toProcess.push_front(&iterator->children[i]);
+					}
+				}
+			}
+		}
+	}
+	
+	return false;
+}
+
+bool MeshSphere(const Mesh& mesh, const Sphere& sphere)
+{
+	if (mesh.accelerator == 0)
+	{
+		for (int i = 0; i < mesh.numTriangles; ++i)
+		{
+			if (TriangleSphere(mesh.triangles[i], sphere))
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		std::list<BVHNode*> toProcess;
+		toProcess.push_front(mesh.accelerator);
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = *(toProcess.begin());
+			toProcess.erase(toProcess.begin());
+
+			if (iterator->numTriangles >= 0)
+			{
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					if (TriangleSphere(mesh.triangles[iterator->triangles[i]], sphere))
+					{
+						return true;
+					}
+				}
+			}
+
+			if (iterator->children != 0)
+			{
+				for (int i = 8 - 1; i >= 0; --i)
+				{
+					if (AABBShpere(iterator->children[i].bounds, sphere))
+					{
+						toProcess.push_front(&iterator->children[i]);
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 bool MeshAABB(const Mesh& mesh, const AABB& aabb)
 {
 	if (mesh.accelerator == 0)
@@ -1293,6 +1389,150 @@ bool MeshAABB(const Mesh& mesh, const AABB& aabb)
 				for (int i = 8 - 1; i >= 0; --i)
 				{
 					if (AABBAABB(iterator->children[i].bounds, aabb))
+					{
+						toProcess.push_front(&iterator->children[i]);
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MeshOBB(const Mesh& mesh, const OBB& obb)
+{
+	if (mesh.accelerator == 0)
+	{
+		for (int i = 0; i < mesh.numTriangles; ++i)
+		{
+			if (TriangleOBB(mesh.triangles[i], obb))
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		std::list<BVHNode*> toProcess;
+		toProcess.push_front(mesh.accelerator);
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = *(toProcess.begin());
+			toProcess.erase(toProcess.begin());
+
+			if (iterator->numTriangles >= 0)
+			{
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					if (TriangleOBB(mesh.triangles[iterator->triangles[i]], obb))
+					{
+						return true;
+					}
+				}
+			}
+
+			if (iterator->children != 0)
+			{
+				for (int i = 8 - 1; i >= 0; --i)
+				{
+					if (AABBOBB(iterator->children[i].bounds, obb))
+					{
+						toProcess.push_front(&iterator->children[i]);
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MeshPlane(const Mesh& mesh, const Plane& plane)
+{
+	if (mesh.accelerator == 0)
+	{
+		for (int i = 0; i < mesh.numTriangles; ++i)
+		{
+			if (TrianglePlane(mesh.triangles[i], plane))
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		std::list<BVHNode*> toProcess;
+		toProcess.push_front(mesh.accelerator);
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = *(toProcess.begin());
+			toProcess.erase(toProcess.begin());
+
+			if (iterator->numTriangles >= 0)
+			{
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					if (TrianglePlane(mesh.triangles[iterator->triangles[i]], plane))
+					{
+						return true;
+					}
+				}
+			}
+
+			if (iterator->children != 0)
+			{
+				for (int i = 8 - 1; i >= 0; --i)
+				{
+					if (AABBPlane(iterator->children[i].bounds, plane))
+					{
+						toProcess.push_front(&iterator->children[i]);
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MeshTriangle(const Mesh& mesh, const Triangle& triangle)
+{
+	if (mesh.accelerator == 0)
+	{
+		for (int i = 0; i < mesh.numTriangles; ++i)
+		{
+			if (TriangleTriangle(mesh.triangles[i], triangle))
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		std::list<BVHNode*> toProcess;
+		toProcess.push_front(mesh.accelerator);
+		while (!toProcess.empty())
+		{
+			BVHNode* iterator = *(toProcess.begin());
+			toProcess.erase(toProcess.begin());
+
+			if (iterator->numTriangles >= 0)
+			{
+				for (int i = 0; i < iterator->numTriangles; ++i)
+				{
+					if (TriangleTriangle(mesh.triangles[iterator->triangles[i]], triangle))
+					{
+						return true;
+					}
+				}
+			}
+
+			if (iterator->children != 0)
+			{
+				for (int i = 8 - 1; i >= 0; --i)
+				{
+					if (AABBTriangle(iterator->children[i].bounds, triangle))
 					{
 						toProcess.push_front(&iterator->children[i]);
 					}
@@ -1354,9 +1594,106 @@ float ModelRay(const Model& model, const Ray& ray)
 	return -1;
 }
 
-bool LineTest(const Model& model, const Line& line);
-bool ModelSphere(const Model& model, const Sphere& sphere);
-bool ModelAABB(const Model& model, const AABB& aabb);
-bool ModelOBB(const Model& model, const OBB& obb);
-bool ModelPlane(const Model& model, const Plane& plane);
-bool ModelTriangle(const Model& model, const Triangle& triangle);
+bool LineTest(const Model& model, const Line& line)
+{
+	mat4 world = GetWorldMatrix(model);
+	mat4 inv = Inverse(world);
+
+	Line local;
+	local.start = MultiplyPoint(line.start, inv);
+	local.end = MultiplyPoint(line.end, inv);
+
+	if (model.GetMesh() != 0)
+	{
+		return LineTest(*(model.GetMesh()), local);
+	}
+
+	return false;
+}
+
+bool ModelSphere(const Model& model, const Sphere& sphere)
+{
+	mat4 world = GetWorldMatrix(model);
+	mat4 inv = Inverse(world);
+
+	Sphere local;
+	local.position = MultiplyPoint(sphere.position, inv);
+
+	if (model.GetMesh() != 0)
+	{
+		return MeshSphere(*(model.GetMesh()), local);
+	}
+
+	return false;
+}
+
+bool ModelAABB(const Model& model, const AABB& aabb)
+{
+	mat4 world = GetWorldMatrix(model);
+	mat4 inv = Inverse(world);
+
+	OBB local;
+	local.size = aabb.size;
+	local.position = MultiplyPoint(aabb.position, inv);
+	local.orientation = Cut(inv, 3, 3);
+
+	if (model.GetMesh() != 0)
+	{
+		return MeshOBB(*(model.GetMesh()), local);
+	}
+
+	return false;
+}
+
+bool ModelOBB(const Model& model, const OBB& obb)
+{
+	mat4 world = GetWorldMatrix(model);
+	mat4 inv = Inverse(world);
+
+	OBB local;
+	local.size = obb.size;
+	local.position = MultiplyPoint(obb.position, inv);
+	local.orientation = obb.orientation * Cut(inv, 3, 3);
+
+	if (model.GetMesh() != 0)
+	{
+		return MeshOBB(*(model.GetMesh()), local);
+	}
+
+	return false;
+}
+
+bool ModelPlane(const Model& model, const Plane& plane)
+{
+	mat4 world = GetWorldMatrix(model);
+	mat4 inv = Inverse(world);
+
+	Plane local;
+	local.normal = MultiplyVector(plane.normal, inv);
+	local.distance = plane.distance;
+
+	if (model.GetMesh() != 0)
+	{
+		return MeshPlane(*(model.GetMesh()), local);
+	}
+
+	return false;
+}
+
+bool ModelTriangle(const Model& model, const Triangle& triangle)
+{
+	mat4 world = GetWorldMatrix(model);
+	mat4 inv = Inverse(world);
+
+	Triangle local;
+	local.a = MultiplyPoint(triangle.a, inv);
+	local.b = MultiplyPoint(triangle.b, inv);
+	local.c = MultiplyPoint(triangle.c, inv);
+
+	if (model.GetMesh() != 0)
+	{
+		return MeshTriangle(*(model.GetMesh()), local);
+	}
+
+	return false;
+}
