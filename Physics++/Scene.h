@@ -39,3 +39,6 @@ public:
 	std::vector<Model*> Query(const Sphere& sphere);
 	std::vector<Model*> Query(const AABB& aabb);
 };
+
+// OctreeNode methods
+void SplitTree(OctreeNode* node, int depth);

@@ -105,3 +105,52 @@ std::vector<Model*> Scene::Query(const AABB& aabb)
 
 	return result;
 }
+
+// OctreeNode methods
+void SplitTree(OctreeNode* node, int depth)
+{
+	if (depth-- <= 0)
+	{
+		return;
+	}
+
+	if (node->children == 0)
+	{
+		node->children = new OctreeNode[8];
+		
+		vec3 c = node->bounds.position;
+		vec3 e = node->bounds.size * 0.5f;
+
+		node->children[0].bounds = AABB(c + vec3(-e.x, +e.y, -e.z), e);
+		node->children[1].bounds = AABB(c + vec3(+e.x, +e.y, -e.z), e);
+		node->children[2].bounds = AABB(c + vec3(-e.x, +e.y, +e.z), e);
+		node->children[3].bounds = AABB(c + vec3(+e.x, +e.y, +e.z), e);
+		node->children[4].bounds = AABB(c + vec3(-e.x, -e.y, -e.z), e);
+		node->children[5].bounds = AABB(c + vec3(+e.x, -e.y, -e.z), e);
+		node->children[6].bounds = AABB(c + vec3(-e.x, -e.y, +e.z), e);
+		node->children[7].bounds = AABB(c + vec3(+e.x, -e.y, +e.z), e);
+	}
+
+	if (node->children != 0 && node->models.size() > 0)
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			for (int j = 0, size = node->models.size(); j < size; ++j)
+			{
+				OBB bounds = GetOBB(*node->models[j]);
+
+				if (AABBOBB(node->children[i].bounds, bounds))
+				{
+					node->children[i].models.push_back(node->models[j]);
+				}
+			}
+		}
+
+		node->models.clear();
+
+		for (int i = 0; i < 8; ++i)
+		{
+			SplitTree(&(node->children[i]), depth);
+		}
+	}
+}
