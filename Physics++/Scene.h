@@ -9,6 +9,22 @@
 #endif 
 
 
+typedef struct OctreeNode
+{
+	AABB bounds;
+	OctreeNode* children;
+	std::vector<Model*> models;
+
+	inline OctreeNode() : children(0) { }
+	inline ~OctreeNode()
+	{
+		if (children != 0)
+		{
+			delete[] children;
+		}
+	}
+} OctreeNode;
+
 class Scene
 {
 protected:
