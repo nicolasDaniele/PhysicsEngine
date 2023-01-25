@@ -19,4 +19,7 @@ public:
 	void RemoveModel(Model* model);
 	void UpdateModel(Model* model);
 	std::vector<Model*> FindChildren(const Model* model);
+	Model* Raycast(const Ray& ray);
+	std::vector<Model*> Query(const Sphere& sphere);
+	std::vector<Model*> Query(const AABB& aabb);
 };
