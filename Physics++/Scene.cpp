@@ -154,3 +154,176 @@ void SplitTree(OctreeNode* node, int depth)
 		}
 	}
 }
+
+void Insert(OctreeNode* node, Model* model)
+{
+	OBB bounds = GetOBB(*model);
+
+	if (AABBOBB(node->bounds, bounds))
+	{
+		if (node->children == 0)
+		{
+			node->models.push_back(model);
+		}
+		else
+		{
+			for (int i = 0; i < 8; ++i)
+			{
+				Insert(&(node->children[i]), model);
+			}
+		}
+	}
+}
+
+void Remove(OctreeNode* node, Model* model)
+{
+	if (node->children == 0)
+	{
+		std::vector<Model*>::iterator it = 
+			std::find(node->models.begin(), node->models.end(), model);
+
+		if (it != node->models.end())
+		{
+			node->models.erase(it);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			Remove(&(node->children[i]), model);
+		}
+	}
+}
+
+void Update(OctreeNode* node, Model* model)
+{
+	Remove(node, model);
+	Insert(node, model);
+}
+
+Model* FindClosest(const std::vector<Model*>& set, const Ray& ray) 
+{
+	if (set.size() == 0)
+	{
+		return 0;
+	}
+
+	Model* closest = 0;
+	float closest_t = -1;
+
+	for (int i = 0, size = set.size(); i < size; ++i)
+	{
+		float this_t = ModelRay(*set[i], ray);
+
+		if (this_t < 0)
+		{
+			continue;
+		}
+
+		if (closest_t < 0 || this_t < closest_t)
+		{
+			closest_t = this_t;
+			closest = set[i];
+		}
+	}
+
+	return closest;
+}
+
+Model* Raycast(OctreeNode* node, const Ray& ray) 
+{
+	float t = Raycast(node->bounds, ray);
+
+	if (t >= 0)
+	{
+		if (node->children == 0)
+		{
+			return FindClosest(node->models, ray);
+		}
+		else
+		{
+			std::vector<Model*> results;
+			
+			for (int i = 0; i < 8; ++i)
+			{
+				Model* result = Raycast(&(node->children[i]), ray);
+				if (result != 0)
+				{
+					results.push_back(result);
+				}
+			}
+
+			return FindClosest(results, ray);
+		}
+	}
+
+	return 0;
+}
+
+std::vector<Model*> Query(OctreeNode* node, const Sphere& sphere) 
+{
+	std::vector<Model*> result;
+
+	if (node->children == 0)
+	{
+		for (int i = 0, size = node->models.size(); i < size; ++i)
+		{
+			OBB bounds = GetOBB(*(node->models[i]));
+
+			if (SphereOBB(sphere, bounds))
+			{
+				result.push_back(node->models[i]);
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			std::vector<Model*> child = Query(&(node->children[i]), sphere);
+
+			if (child.size() > 0)
+			{
+				result.insert(result.end(), child.begin(), child.end());
+			}
+		}
+	}
+
+	return result;
+}
+
+std::vector<Model*> Query(OctreeNode* node, const AABB& aabb) 
+{
+	std::vector<Model*> result;
+
+	if (AABBAABB(aabb, node->bounds))
+	{
+		if (node->children == 0)
+		{
+			for (int i = 0, size = node->models.size(); i < size; ++i)
+			{
+				OBB bounds = GetOBB(*(node->models[i]));
+				
+				if (AABBOBB(aabb, bounds))
+				{
+					result.push_back(node->models[i]);
+				}
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 8; ++i)
+			{
+				std::vector<Model*> child = Query(&(node->children[i]), aabb);
+
+				if (child.size() > 0)
+				{
+					result.insert(result.end(), child.begin(), child.end());
+				}
+			}
+		}
+	}
+
+	return result;
+}
