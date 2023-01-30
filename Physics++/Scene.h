@@ -27,17 +27,32 @@ typedef struct OctreeNode
 
 class Scene
 {
-protected:
-	std::vector<Model*> objects;
-
 public:
+	inline Scene() : octree(0) { }
+	inline ~Scene()
+	{
+		if (octree != 0)
+		{
+			delete octree;
+		}
+	}
+
 	void AddModel(Model* model);
 	void RemoveModel(Model* model);
-	void UpdateModel(Model* model);
+	void UpdateModel(Model* model); 
 	std::vector<Model*> FindChildren(const Model* model);
 	Model* Raycast(const Ray& ray);
 	std::vector<Model*> Query(const Sphere& sphere);
 	std::vector<Model*> Query(const AABB& aabb);
+	bool Accelerate(const vec3& position, float size);
+
+protected:
+	std::vector<Model*> objects;
+	OctreeNode* octree;
+
+private:
+	Scene(const Scene&);
+	Scene& operator=(const Scene&);
 };
 
 // OctreeNode methods

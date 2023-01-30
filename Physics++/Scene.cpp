@@ -20,7 +20,7 @@ void Scene::RemoveModel(Model* model)
 
 void Scene::UpdateModel(Model* model)
 {
-
+	// Placeholder
 }
 
 std::vector<Model*> Scene::FindChildren(const Model* model)
@@ -51,6 +51,11 @@ std::vector<Model*> Scene::FindChildren(const Model* model)
 
 Model* Scene::Raycast(const Ray& ray)
 {
+	if (octree != 0)
+	{
+		return ::Raycast(octree, ray);
+	}
+
 	Model* result = 0;
 	float result_t = -1;
 
@@ -74,6 +79,11 @@ Model* Scene::Raycast(const Ray& ray)
 
 std::vector<Model*> Scene::Query(const Sphere& sphere) 
 {
+	if (octree != 0)
+	{
+		return ::Query(octree, sphere);
+	}
+
 	std::vector<Model*> result;
 
 	for (int i = 0, size = objects.size(); i < size; ++i)
@@ -91,6 +101,11 @@ std::vector<Model*> Scene::Query(const Sphere& sphere)
 
 std::vector<Model*> Scene::Query(const AABB& aabb)
 {
+	if (octree != 0)
+	{
+		return ::Query(octree, aabb);
+	}
+
 	std::vector<Model*> result;
 
 	for (int i = 0, size = objects.size(); i < size; ++i)
@@ -104,6 +119,29 @@ std::vector<Model*> Scene::Query(const AABB& aabb)
 	}
 
 	return result;
+}
+
+bool Scene::Accelerate(const vec3& position, float size)
+{
+	if (octree != 0)
+	{
+		return false;
+	}
+
+	vec3 min(position.x - size, position.y - size, position.z - size);
+	vec3 max(position.x + size, position.y + size, position.z + size);
+
+	octree = new OctreeNode();
+	octree->bounds = FromMinMax(min, max);
+	octree->children = 0;
+
+	for (int i = 0, size = objects.size(); i < size; ++i)
+	{
+		octree->models.push_back(objects[i]);
+	}
+
+	SplitTree(octree, 5);
+	return true;
 }
 
 // OctreeNode methods
