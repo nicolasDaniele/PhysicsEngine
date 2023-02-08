@@ -38,3 +38,27 @@ protected:
 	mat4 m_matProj;
 	int  m_nProjectionMode; // 0 = Perspective; 1 = Ortho; 2 = User
 };
+
+class OrbitCamera : public Camera
+{
+protected:
+	vec3 target;
+	vec2 panSpeed;
+	float zoomDistance;
+	vec2 zoomDistanceLimit; // x = min; y = max
+	float zoomSpeed;
+	vec2 rotationSpeed;
+	vec2 yRotationLimit; // x = min; y = max
+	vec2 currentRotation;
+
+	float ClampAngle(float angle, float min, float max);
+
+public:
+	OrbitCamera();
+	inline virtual ~OrbitCamera() { }
+
+	void Rotate(const vec2& deltaRotation, float deltaTime);
+	void Zoom(float deltaZoom, float deltaTime);
+	void Pan(const vec2& deltaPan, float deltaTime);
+	void Update(float deltaTime);
+};

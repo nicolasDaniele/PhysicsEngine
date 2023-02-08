@@ -161,3 +161,87 @@ void Camera::SetWorld(const mat4& world)
 {
 	m_matWorld = world;
 }
+
+
+//=====================================================================
+
+// Orbit Camera
+OrbitCamera::OrbitCamera()
+{
+	target = vec3(0, 0, 0);
+	zoomDistance = 10.0f;
+	zoomSpeed = 200.0f;
+	rotationSpeed = vec2(250.0f, 120.0f);
+	yRotationLimit = vec2(-20.f, 80.0f);
+	zoomDistanceLimit = vec2(3.0f, 15.0f);
+	currentRotation = vec2(0, 0);
+	panSpeed = vec2(180.0f, 180.0f);
+}
+
+void OrbitCamera::Rotate(const vec2& deltaRotation, float deltaTime)
+{
+	currentRotation.x += deltaRotation.x * rotationSpeed.x * zoomDistance * deltaTime;
+	currentRotation.y += deltaRotation.y * rotationSpeed.y * zoomDistance * deltaTime;
+
+	currentRotation.x = ClampAngle(currentRotation.x, -360, 360);
+	currentRotation.y = ClampAngle(currentRotation.y, yRotationLimit.x, yRotationLimit.y);
+}
+
+void OrbitCamera::Zoom(float deltaZoom, float deltaTime)
+{
+	zoomDistance = zoomDistance + deltaZoom * zoomSpeed * deltaTime;
+
+	if (zoomDistance < zoomDistanceLimit.x)
+	{
+		zoomDistance = zoomDistanceLimit.x;
+	}
+	if (zoomDistance > zoomDistanceLimit.y)
+	{
+		zoomDistance = zoomDistanceLimit.y;
+	}
+}
+
+void OrbitCamera::Pan(const vec2& deltaPan, float deltaTime)
+{
+	vec3 right(m_matWorld._11, m_matWorld._12, m_matWorld._13);
+	float xPanMag = deltaPan.x * panSpeed.x * deltaTime;
+	target = target - (right * xPanMag);
+
+	float yPanMag = deltaPan.y * panSpeed.y * deltaTime;
+	target = target + (vec3(0, 1, 0) * yPanMag);
+}
+
+void OrbitCamera::Update(float deltaTime)
+{
+	vec3 rotation = vec3(currentRotation.y, currentRotation.x, 0);
+	mat3 orient = Rotation3x3(rotation.x, rotation.y, rotation.z);
+	vec3 direction = MultiplyVector(vec3(0.0f, 0.0f, -zoomDistance), orient);
+	vec3 position = direction + target;
+
+	m_matWorld = Inverse(LookAt(position, target, vec3(0, 1, 0)));
+}
+
+float OrbitCamera::ClampAngle(float angle, float min, float max)
+{
+	while (angle < -360)
+	{
+		angle += 360;
+	}
+
+	while (angle > 360)
+	{
+		angle -= 360;
+	}
+
+	if (angle < min)
+	{
+		angle = min;
+	}
+
+	if (angle > max)
+	{
+		angle = max;
+	}
+
+	return angle;
+}
