@@ -137,6 +137,27 @@ typedef struct BVHNode
 	BVHNode() : children(0), numTriangles(0), triangles(0) { }
 } BVHNode;
 
+#undef near
+#undef far
+
+typedef struct Frustum
+{
+	union
+	{
+		struct
+		{
+			Plane top;
+			Plane bottom;
+			Plane left;
+			Plane right;
+			Plane near;
+			Plane far;
+		};
+		Plane planes[6];
+	};
+	inline Frustum() { }
+} Frustum;
+
 class Model
 {
 protected:
@@ -268,5 +289,11 @@ bool ModelAABB(const Model& model, const AABB& aabb);
 bool ModelOBB(const Model& model, const OBB& obb);
 bool ModelPlane(const Model& model, const Plane& plane);
 bool ModelTriangle(const Model& model, const Triangle& triangle);
+
+// Frustum Methods
+Point Intersection(Plane plane1, Plane plane2, Plane plane3);
+void GetCorners(const Frustum& frustum, vec3* outCorners);
+bool Intersects(const Frustum& frustum, const Point& point);
+bool Intersects(const Frustum& frustum, const Sphere& sphere);
 
 #endif

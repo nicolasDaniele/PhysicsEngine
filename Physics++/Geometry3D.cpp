@@ -1697,3 +1697,80 @@ bool ModelTriangle(const Model& model, const Triangle& triangle)
 
 	return false;
 }
+
+// Frustum Methods
+Point Intersection(Plane plane1, Plane plane2, Plane plane3) 
+{
+	mat3 D(
+		plane1.normal.x, plane2.normal.x, plane3.normal.x,
+		plane1.normal.y, plane2.normal.y, plane3.normal.y, 
+		plane1.normal.z, plane2.normal.z, plane3.normal.z
+	);
+
+	vec3 A(-plane1.distance, -plane2.distance, -plane3.distance);
+
+	mat3 Dx = D;
+	mat3 Dy = D;
+	mat3 Dz = D;
+	Dx._11 = A.x; Dx._12 = A.y; Dx._13 = A.z;
+	Dy._21 = A.x; Dx._22 = A.y; Dx._23 = A.z;
+	Dz._31 = A.x; Dx._32 = A.y; Dx._33 = A.z;
+
+	float detD = Determinant(D);
+	if (CMP(detD, 0))
+	{
+		return Point();
+	}
+
+	float detDx = Determinant(Dx);
+	float detDy = Determinant(Dy);
+	float detDz = Determinant(Dz);
+
+	return Point(detDx / detD, detDy / detD, detDz / detD);
+}
+
+void GetCorners(const Frustum& frustum, vec3* outCorners)
+{
+	outCorners[0] = Intersection(frustum.near, frustum.top,    frustum.left);
+	outCorners[1] = Intersection(frustum.near, frustum.top,    frustum.right);
+	outCorners[2] = Intersection(frustum.near, frustum.bottom, frustum.left);
+	outCorners[3] = Intersection(frustum.near, frustum.bottom, frustum.right);
+	outCorners[4] = Intersection(frustum.far,  frustum.top,    frustum.left);
+	outCorners[5] = Intersection(frustum.far,  frustum.top,    frustum.right);
+	outCorners[6] = Intersection(frustum.far,  frustum.bottom, frustum.left);
+	outCorners[7] = Intersection(frustum.far,  frustum.bottom, frustum.right);
+}
+
+bool Intersects(const Frustum& frustum, const Point& point)
+{
+	for (int i = 0; i < 6; ++i)
+	{
+		vec3 normal = frustum.planes[i].normal;
+		float distance = frustum.planes[i].distance;
+		float side = Dot(point, normal) + distance;
+
+		if (side < 0.0f)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Intersects(const Frustum& frustum, const Sphere& sphere)
+{
+	for (int i = 0; i < 6; ++i)
+	{
+		vec3 normal = frustum.planes[i].normal;
+		float distance = frustum.planes[i].distance;
+		float side = Dot(sphere.position, normal) + distance;
+
+		if (side < -sphere.radius)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}

@@ -162,6 +162,39 @@ void Camera::SetWorld(const mat4& world)
 	m_matWorld = world;
 }
 
+Frustum Camera::GetFrustum()
+{
+	Frustum result;
+
+	mat4 vp = GetViewMatrix() * GetProjectionMatrix();
+	vec3 col1(vp._11, vp._21, vp._31);
+	vec3 col2(vp._12, vp._22, vp._32);
+	vec3 col3(vp._13, vp._23, vp._33); 
+	vec3 col4(vp._14, vp._24, vp._34);
+
+	result.left.normal   = col4 + col1;
+	result.right.normal  = col4 - col1;
+	result.bottom.normal = col4 + col2;
+	result.top.normal    = col4 - col2;
+	result.near.normal   = col3;
+	result.far.normal    = col4 - col3;
+
+	result.left.distance   = vp._44 + vp._41;
+	result.right.distance  = vp._44 - vp._41;
+	result.bottom.distance = vp._44 + vp._42;
+	result.top.distance    = vp._44 - vp._42;
+	result.near.distance   = vp._43;
+	result.far.distance    = vp._44 - vp._43;
+
+	for (int i = 0; i < 6; ++i)
+	{
+		float mag = 1.0f / Magnitude(result.planes[i].normal);
+		result.planes[i].normal = result.planes[i].normal * mag;
+		result.planes[i].distance *= mag;
+	}
+
+	return result;
+}
 
 //=====================================================================
 

@@ -4,6 +4,7 @@
 #define _H_CAMERA_
 
 #include "matrices.h"
+#include "Geometry3D.h"
 
 #endif
 
@@ -26,6 +27,7 @@ public:
 	void Resize(int width, int height);
 	void Perspective(float fov, float aspect, float zNear, float zFar);
 	void Orthographic(float width, float height, float zNear, float zFar);
+	Frustum GetFrustum();
 
 protected:
 	float m_nFOV;
