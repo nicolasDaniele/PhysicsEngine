@@ -1774,3 +1774,133 @@ bool Intersects(const Frustum& frustum, const Sphere& sphere)
 
 	return true;
 }
+
+float Classify(const AABB& aabb, const Plane& plane)
+{
+	float r = fabsf(aabb.size.x * plane.normal.x) +
+		fabsf(aabb.size.y * plane.normal.y) +
+		fabsf(aabb.size.z * plane.normal.z);
+	float d = Dot(plane.normal, aabb.position) + plane.distance;
+
+	if (fabsf(d) < r)
+	{
+		return 0.0f;
+	}
+	else if (d < 0.0f)
+	{
+		return d + r;
+	}
+
+	return d - r;
+}
+
+float Classify(const OBB& obb, const Plane& plane)
+{
+	vec3 normal = MultiplyVector(plane.normal, obb.orientation);
+	float r = fabs(obb.size.x * plane.normal.x) +
+		fabs(obb.size.y * plane.normal.y) +
+		fabs(obb.size.z * plane.normal.z);
+	float d = Dot(plane.normal, obb.position) + plane.distance;
+
+	if (fabsf(d) < r)
+	{
+		return 0.0f;
+	}
+	else if (d < 0.0f)
+	{
+		return d + r;
+	}
+
+	return d - r;
+}
+
+bool Intersects(const Frustum& frustum, const AABB& aabb)
+{
+	for (int i = 0; i < 6; ++i)
+	{
+		if (Classify(aabb, frustum.planes[i]) < 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Intersects(const Frustum& frustum, const OBB& obb)
+{
+	for (int i = 0; i < 6; ++i)
+	{
+		if (Classify(obb, frustum.planes[i]) < 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+// Picking
+vec3 Uproject(const vec3& viewportPoint, const vec2& viewportOrigin,
+	const vec2& viewportSize, const mat4& view, const mat4& projection)
+{
+	float normalized[4] = {
+		(viewportPoint.x - viewportOrigin.x) / viewportSize.x,
+		(viewportPoint.y - viewportOrigin.y) / viewportSize.y,
+		viewportPoint.z,
+		1.0f
+	};
+
+	float ndcSpace[4] = {
+		normalized[0],
+		normalized[1],
+		normalized[2],
+		normalized[3],
+	};
+
+	ndcSpace[0] = ndcSpace[0] * 2.0f - 1.0f;
+	ndcSpace[1] = 1.0f - ndcSpace[1] * 2.0f;
+
+	if (ndcSpace[2] < 0.0f)
+	{
+		ndcSpace[2] = 0.0f;
+	}
+	if (ndcSpace[2] > 1.0f)
+	{
+		ndcSpace[2] = 1.0f;
+	}
+
+	mat4 invProjection = Inverse(projection);
+	float eyeSpace[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Multiply(eyeSpace, ndcSpace, 1, 4, invProjection.asArray, 4, 4);
+
+	mat4 invView = Inverse(view);
+	float worldSpace[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Multiply(worldSpace, eyeSpace, 1, 4, invView.asArray, 4, 4);
+
+	if (!CMP(worldSpace[3], 0.0f))
+	{
+		worldSpace[0] /= worldSpace[3];
+		worldSpace[1] /= worldSpace[3];
+		worldSpace[2] /= worldSpace[3];
+	}
+
+	return vec3(worldSpace[0], worldSpace[1], worldSpace[2]);
+}
+
+Ray GetPickRay(const vec2& viewportPoint, const vec2& viewportOrigin,
+	const vec2& viewportSize, const mat4& view, const mat4& projection)
+{
+	vec3 nearPoint(viewportPoint.x, viewportPoint.y, 0.0f);
+	vec3 farPoint(viewportPoint.x, viewportPoint.y, 1.0f);
+	
+	vec3 pNear = Uproject(nearPoint, viewportOrigin, viewportSize,
+		view, projection);
+	vec3 pFar = Uproject(farPoint, viewportOrigin, viewportSize,
+		view, projection);
+
+	vec3 normal = Normalized(pFar - pNear);
+	vec3 origin = pNear;
+
+	return Ray(origin, normal);
+}

@@ -6,9 +6,6 @@
 #include "Geometry3D.h"
 #include <vector>
 
-#endif 
-
-
 typedef struct OctreeNode
 {
 	AABB bounds;
@@ -45,6 +42,7 @@ public:
 	std::vector<Model*> Query(const Sphere& sphere);
 	std::vector<Model*> Query(const AABB& aabb);
 	bool Accelerate(const vec3& position, float size);
+	std::vector<Model*> Cull(const Frustum& frustum);
 
 protected:
 	std::vector<Model*> objects;
@@ -64,3 +62,5 @@ Model* FindClosest(const std::vector<Model*>& set, const Ray& ray);
 Model* Raycast(OctreeNode* node, const Ray& ray);
 std::vector<Model*> Query(OctreeNode* node, const Sphere& sphere);
 std::vector<Model*> Query(OctreeNode* node, const AABB& aabb);
+
+#endif

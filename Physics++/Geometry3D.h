@@ -295,5 +295,15 @@ Point Intersection(Plane plane1, Plane plane2, Plane plane3);
 void GetCorners(const Frustum& frustum, vec3* outCorners);
 bool Intersects(const Frustum& frustum, const Point& point);
 bool Intersects(const Frustum& frustum, const Sphere& sphere);
+float Classify(const AABB& aabb, const Plane& plane);
+float Classify(const OBB& obb, const Plane& plane);
+bool Intersects(const Frustum& frustum, const AABB& aabb);
+bool Intersects(const Frustum& frustum, const OBB& obb);
+
+// Picking
+vec3 Uproject(const vec3& viewportPoint, const vec2& viewportOrigin,
+	const vec2& viewportSize, const mat4& view, const mat4& projection);
+Ray GetPickRay(const vec2& viewportPoint, const vec2& viewportOrigin,
+	const vec2& viewportSize, const mat4& view, const mat4& projection);
 
 #endif
