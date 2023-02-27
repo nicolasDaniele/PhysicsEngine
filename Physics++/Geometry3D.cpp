@@ -493,8 +493,10 @@ Interval GetInterval(const OBB& obb, const vec3& axis)
 }
 
 // Raycast methods
-float Raycast(const Sphere& sphere, const Ray& ray)
+float Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult)
 {
+	ResetRaycasstResult(outResult);
+
 	vec3 e = sphere.position - ray.origin;
 	float rSq = sphere.radius * sphere.radius;
 	float eSq = MagnitudeSq(e);
@@ -502,86 +504,94 @@ float Raycast(const Sphere& sphere, const Ray& ray)
 
 	float bSq = eSq - (a * a);
 	float f = sqrt(rSq - bSq);
+	float t = a - f;
 
 	if (rSq - (eSq - (a * a)) < 0.0f) // No collision
 	{
-		return -1;
+		return false;
 	}
 	else if (eSq < rSq) // Ray starts inside the sphere
 	{
-		return a + f;
+		t = a + f;
 	}
-	else // Normal intersection
+	
+	if (outResult != 0)
 	{
-		return a - f;
+		outResult->t = t;
+		outResult->hit = true;
+		outResult->point = ray.origin + ray.direction * t;
+		outResult->normal = Normalized(outResult->point - sphere.position);
 	}
+
+	return true;
 }
 
-float Raycast(const AABB& aabb, const Ray& ray)
+float Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult)
 {
+	ResetRaycasstResult(outResult);
+
 	vec3 min = GetMin(aabb);
 	vec3 max = GetMax(aabb);
 
-	// Avoid division for 0!
-	Ray testRay = ray;
+	float t[] = { 0, 0, 0, 0, 0, 0 };
 
-	if (testRay.direction.x == 0.0f)
-	{
-		testRay.direction.x = 0.00001f;
-	}
-	if (testRay.direction.y == 0.0f)
-	{
-		testRay.direction.y = 0.00001f;
-	}
-	if (testRay.direction.z == 0.0f)
-	{
-		testRay.direction.z = 0.00001f;
-	}
-
-	float t1 = (min.x - testRay.origin.x) / testRay.direction.x;
-	float t2 = (max.x - testRay.origin.x) / testRay.direction.x;
-	float t3 = (min.y - testRay.origin.y) / testRay.direction.y;
-	float t4 = (max.y - testRay.origin.y) / testRay.direction.y;
-	float t5 = (min.z - testRay.origin.z) / testRay.direction.z;
-	float t6 = (max.z - testRay.origin.z) / testRay.direction.z;
+	if (!CMP(ray.direction.x, 0)) t[0] = (min.x - ray.origin.x) / ray.direction.x;
+	if (!CMP(ray.direction.x, 0)) t[1] = (max.x - ray.origin.x) / ray.direction.x;
+	if (!CMP(ray.direction.y, 0)) t[2] = (min.y - ray.origin.y) / ray.direction.y;
+	if (!CMP(ray.direction.y, 0)) t[3] = (max.y - ray.origin.y) / ray.direction.y;
+	if (!CMP(ray.direction.z, 0)) t[4] = (min.z - ray.origin.z) / ray.direction.z;
+	if (!CMP(ray.direction.z, 0)) t[5] = (max.z - ray.origin.z) / ray.direction.z;
 
 	float tmin = fmaxf(
-		fmaxf(fminf(t1, t2), fminf(t3, t4)), 
-		fminf(t5, t6));
+		fmaxf(fminf(t[0], t[1]), fminf(t[2], t[3])), 
+		fminf(t[4], t[5]));
 
 	float tmax = fminf(
-		fminf(fmaxf(t1, t2), fmaxf(t3, t4)),
-		fmaxf(t5, t6));
+	fminf(fmaxf(t[0], t[1]), fmaxf(t[2], t[3])),
+		fmaxf(t[4], t[5]));
 
-	if (tmax < 0) // No intersection
+	if (tmax < 0) return false;
+	if (tmin > tmax) return false;
+
+	float t_result = tmin;
+	if (tmin < 0) t_result = tmax;
+
+	if (outResult != 0)
 	{
-		return -1;
+		outResult->t = t_result;
+		outResult->hit = true;
+		outResult->point = ray.origin + ray.direction * t_result;
+
+		vec3 normals[] = 
+		{
+			vec3(-1, 0, 0), vec3(1, 0, 0),
+			vec3(0, -1, 0), vec3(0, 1, 0),
+			vec3(0, 0, -1), vec3(0, 0, 1)
+		};
+
+		for (int i = 0; i < 6; ++i)
+		{
+			if (CMP(t_result, t[i]))
+			{
+				outResult->normal = normals[i];
+			}
+		}
 	}
 
-	if (tmin > tmax) // No intersection
-	{
-		return -1;
-	}
-
-	if (tmin < 0) // Ray starts inside AABB
-	{
-		return tmax;
-	}
-
-	// Intersection
-	return tmin;
+	return true;
 }
 
-float Raycast(const OBB& obb, const Ray& ray)
+float Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult)
 {
+	ResetRaycasstResult(outResult);
+
 	const float* orientation = obb.orientation.asArray;
 	const float* size = obb.size.asArray;
+	vec3 p = obb.position - ray.origin;
 
 	vec3 xAxis(orientation[0], orientation[1], orientation[2]);
 	vec3 yAxis(orientation[3], orientation[4], orientation[5]);
-	vec3 zAxis(orientation[6], orientation[7], orientation[8]);
-
-	vec3 p = obb.position - ray.origin;
+	vec3 zAxis(orientation[6], orientation[7], orientation[8]);	
 
 	vec3 f (
 		Dot(xAxis, ray.direction),
@@ -602,7 +612,7 @@ float Raycast(const OBB& obb, const Ray& ray)
 		{
 			if (-e[i] - size[i] > 0 || -e[i] + size[i] < 0)
 			{
-				return -1;
+				return false;
 			}
 
 			// Avoid dividing by 0
@@ -621,22 +631,35 @@ float Raycast(const OBB& obb, const Ray& ray)
 		fminf(fmaxf(t[0], t[1]), fmaxf(t[2], t[3])),
 		fmaxf(t[4], t[5]));
 
-	if (tmax < 0) // No intersection
+	if (tmax < 0) return false;
+	if (tmin > tmax) return false;
+
+	float t_result = tmin;
+	if (tmin < 0.0f) return tmax;
+
+	if (outResult != 0)
 	{
-		return -1;
+		outResult->hit = true;
+		outResult->t = t_result;
+		outResult->point = ray.origin + ray.direction * t_result;
+
+		vec3 normals[] =
+		{
+			xAxis, xAxis * -1.0f,
+			yAxis, yAxis * -1.0f,
+			zAxis, zAxis * -1.0f
+		};
+
+		for (int i = 0; i < 6; ++i)
+		{
+			if (CMP(t_result, t[i]))
+			{
+				outResult->normal = Normalized(normals[i]);
+			}
+		}
 	}
 
-	if (tmin < tmax) // No intersection
-	{
-		return -1;
-	}
-
-	if (tmin < 0.0f) // Ray starts inside OBB
-	{
-		return tmax;
-	}
-
-	return tmin; // Normal intersection
+	return true;
 }
 
 float Raycast(const Plane& plane, const Ray& ray)
@@ -681,6 +704,17 @@ float Raycast(const Triangle& triangle, const Ray& ray)
 	return -1;
 }
 
+void ResetRaycasstResult(RaycastResult* outResult)
+{
+	if (outResult != 0)
+	{
+		outResult->t = -1;
+		outResult->hit = false;
+		outResult->normal = vec3(0, 0, 1);
+		outResult->point = vec3(0, 0, 0);
+	}
+}
+
 // Linecast methods
 bool Linecast(const Sphere& sphere, const Line& line)
 {
@@ -695,7 +729,14 @@ bool Linecast(const AABB& aabb, const Line& line)
 	Ray ray;
 	ray.origin = line.start;
 	ray.direction = Normalized(line.end - line.start);
-	float t = Raycast(aabb, ray);
+	
+	RaycastResult result;
+	if (!Raycast(aabb, ray, &result))
+	{
+		return false;
+	}
+
+	float t = result.t;
 
 	return t >= 0 && t * t <= LenghtSq(line);
 }
@@ -705,7 +746,14 @@ bool Linecast(const OBB& obb, const Line& line)
 	Ray ray;
 	ray.origin = line.start;
 	ray.direction = Normalized(line.end - line.start);
-	float t = Raycast(obb, ray);
+
+	RaycastResult result;
+	if (!Raycast(obb, ray, &result))
+	{
+		return false;
+	}
+
+	float t = result.t;
 
 	return t >= 0 && t * t <= LenghtSq(line);
 }
@@ -1244,7 +1292,10 @@ float MeshRay(const Mesh& mesh, const Ray& ray)
 			{
 				for (int i = 8 - 1; i >= 0; --i)
 				{
-					if (Raycast(iterator->children[i].bounds, ray) >= 0)
+					RaycastResult result;
+					Raycast(iterator->children[i].bounds, ray, &result);
+
+					if (result.t >= 0)
 					{
 						toProcess.push_front(&iterator->children[i]);
 					}

@@ -158,6 +158,14 @@ typedef struct Frustum
 	inline Frustum() { }
 } Frustum;
 
+typedef struct RaycastResult
+{
+	vec3 point;
+	vec3 normal;
+	float t;
+	bool hit;
+} RaycastResult;
+
 class Model
 {
 protected:
@@ -236,11 +244,12 @@ Interval GetInterval(const AABB& aabb, const vec3& axis);
 Interval GetInterval(const OBB& obb, const vec3& axis);
 
 // Raycast methods
-float Raycast(const Sphere& sphere, const Ray& ray);
-float Raycast(const AABB& aabb, const Ray& ray);
-float Raycast(const OBB& obb, const Ray& ray);
+float Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult);
+float Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult);
+float Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult);
 float Raycast(const Plane& plane, const Ray& ray);
 float Raycast(const Triangle& triangle, const Ray& ray);
+void ResetRaycasstResult(RaycastResult* outResult);
 
 // Linecast methods
 bool Linecast(const Sphere& sphere, const Line& line);
