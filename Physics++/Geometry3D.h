@@ -244,12 +244,12 @@ Interval GetInterval(const AABB& aabb, const vec3& axis);
 Interval GetInterval(const OBB& obb, const vec3& axis);
 
 // Raycast methods
-float Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult);
-float Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult);
-float Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult);
-float Raycast(const Plane& plane, const Ray& ray);
-float Raycast(const Triangle& triangle, const Ray& ray);
-void ResetRaycasstResult(RaycastResult* outResult);
+bool Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult);
+bool Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult);
+bool Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult);
+bool Raycast(const Plane& plane, const Ray& ray, RaycastResult* outResult);
+bool Raycast(const Triangle& triangle, const Ray& ray, RaycastResult* outResult);
+void ResetRaycastResult(RaycastResult* outResult);
 
 // Linecast methods
 bool Linecast(const Sphere& sphere, const Line& line);

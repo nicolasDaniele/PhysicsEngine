@@ -493,9 +493,9 @@ Interval GetInterval(const OBB& obb, const vec3& axis)
 }
 
 // Raycast methods
-float Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult)
+bool Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult)
 {
-	ResetRaycasstResult(outResult);
+	ResetRaycastResult(outResult);
 
 	vec3 e = sphere.position - ray.origin;
 	float rSq = sphere.radius * sphere.radius;
@@ -526,9 +526,9 @@ float Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult)
 	return true;
 }
 
-float Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult)
+bool Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult)
 {
-	ResetRaycasstResult(outResult);
+	ResetRaycastResult(outResult);
 
 	vec3 min = GetMin(aabb);
 	vec3 max = GetMax(aabb);
@@ -581,9 +581,9 @@ float Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult)
 	return true;
 }
 
-float Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult)
+bool Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult)
 {
-	ResetRaycasstResult(outResult);
+	ResetRaycastResult(outResult);
 
 	const float* orientation = obb.orientation.asArray;
 	const float* size = obb.size.asArray;
@@ -662,49 +662,70 @@ float Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult)
 	return true;
 }
 
-float Raycast(const Plane& plane, const Ray& ray)
+bool Raycast(const Plane& plane, const Ray& ray, RaycastResult* outResult)
 {
+	ResetRaycastResult(outResult);
+
 	float nd = Dot(ray.direction, plane.normal);
 	float pn = Dot(ray.origin, plane.normal);
 
 	if (nd >= 0.0f)
 	{
-		return -1; 
+		return false; 
 	}
 
 	float t = (plane.distance - pn) / nd;
 	if (t >= 0.0f)
 	{
-		return t;
+		if (outResult != 0)
+		{
+			outResult->t = t;
+			outResult->hit = true;
+			outResult->point = ray.origin + ray.direction * t;
+			outResult->normal = Normalized(plane.normal);
+		}
+
+		return true;
 	}
 
-	return -1;
+	return false;
 }
 
-float Raycast(const Triangle& triangle, const Ray& ray)
+bool Raycast(const Triangle& triangle, const Ray& ray, RaycastResult* outResult)
 {
-	Plane plane = FromTriangle(triangle);
-	float t = Raycast(plane, ray);
+	ResetRaycastResult(outResult);
 
-	if (t < 0.0f)
+	Plane plane = FromTriangle(triangle);
+	RaycastResult planeResult;
+
+	if (!Raycast(plane, ray, &planeResult))
 	{
-		return t;
+		return false;
 	}
 
-	Point result = ray.origin + ray.direction * t;
-	vec3 barycentric = Barycentric(result, triangle);
+	float t = planeResult.t;
+	Point resultPoint = ray.origin + ray.direction * t;
+	vec3 barycentric = Barycentric(resultPoint, triangle);
 
 	if (barycentric.x >= 0.0f && barycentric.x <= 1.0f &&
 		barycentric.y >= 0.0f && barycentric.y <= 1.0f &&
 		barycentric.z >= 0.0f && barycentric.z <= 1.0f)
 	{
-		return t;
+		if (outResult != 0)
+		{
+			outResult->t = t;
+			outResult->hit = true;
+			outResult->point = ray.origin + ray.direction * t;
+			outResult->normal = plane.normal;
+		}
+
+		return true;
 	}
 
-	return -1;
+	return false;
 }
 
-void ResetRaycasstResult(RaycastResult* outResult)
+void ResetRaycastResult(RaycastResult* outResult)
 {
 	if (outResult != 0)
 	{
@@ -780,8 +801,14 @@ bool Linecast(const Triangle& triangle, const Line& line)
 	Ray ray;
 	ray.origin = line.start;
 	ray.origin = Normalized(line.end - line.start);
+	RaycastResult result;
+	
+	if (!Raycast(triangle, ray, &result))
+	{
+		return false;
+	}
 
-	float t = Raycast(triangle, ray);
+	float t = result.t;
 
 	return t >= 0.0f && t * t <= LenghtSq(line);
 }
@@ -1259,7 +1286,9 @@ float MeshRay(const Mesh& mesh, const Ray& ray)
 	{
 		for (int i = 0; i < mesh.numTriangles; ++i)
 		{
-			float result = Raycast(mesh.triangles[i], ray);
+			RaycastResult raycastResult;
+			Raycast(mesh.triangles[i], ray, &raycastResult);
+			float result = raycastResult.t;
 			if (result >= 0)
 			{
 				return result;
@@ -1280,7 +1309,9 @@ float MeshRay(const Mesh& mesh, const Ray& ray)
 			{
 				for (int i = 0; i < iterator->numTriangles; ++i)
 				{
-					float r = Raycast(mesh.triangles[iterator->triangles[i]], ray);
+					RaycastResult raycastResult;
+					Raycast(mesh.triangles[iterator->triangles[i]], ray, &raycastResult);
+					float r = raycastResult.t;
 					if (r >= 0)
 					{
 						return r;
