@@ -3,16 +3,14 @@
 #include <cfloat>
 #include <list>
 
-#define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
-
 void Model::SetContent(Mesh* mesh)
 {
 	content = mesh;
 
 	if (content != 0)
 	{
-		vec3 min = mesh->vertices[0];
-		vec3 max = mesh->vertices[0];
+		Vec3 min = mesh->vertices[0];
+		Vec3 max = mesh->vertices[0];
 
 		for (int i = 1; i < mesh->numTriangles * 3; ++i)
 		{
@@ -29,7 +27,6 @@ void Model::SetContent(Mesh* mesh)
 	}
 }
 
-// Line methods
 float Lenght(const Line& line)
 {
 	return Magnitude(line.start - line.end);
@@ -40,47 +37,41 @@ float LenghtSq(const Line& line)
 	return MagnitudeSq(line.start - line.end);
 }
 
-// Ray method
 Ray FromPoints(const Point& from, const Point& to)
 {
 	return Ray(from, Normalized(to - from));
 }
 
-// AABB methods
-vec3 GetMin(const AABB& aabb)
+Vec3 GetMin(const AABB& aabb)
 {
-	vec3 p1 = aabb.position + aabb.size;
-	vec3 p2 = aabb.position - aabb.size;
+	Vec3 p1 = aabb.position + aabb.size;
+	Vec3 p2 = aabb.position - aabb.size;
 
-	return vec3(fminf(p1.x, p2.x),
+	return Vec3(fminf(p1.x, p2.x),
 		fminf(p1.y, p2.y), 
 		fminf(p1.z, p2.z));
 }
 
-vec3 GetMax(const AABB& aabb)
+Vec3 GetMax(const AABB& aabb)
 {
-	vec3 p1 = aabb.position + aabb.size;
-	vec3 p2 = aabb.position - aabb.size;
+	Vec3 p1 = aabb.position + aabb.size;
+	Vec3 p2 = aabb.position - aabb.size;
 
-	return vec3(fmaxf(p1.x, p2.x),
+	return Vec3(fmaxf(p1.x, p2.x),
 		fmaxf(p1.y, p2.y),
 		fmaxf(p1.z, p2.z));
 }
 
-AABB FromMinMax(const vec3& min, const vec3& max)
+AABB FromMinMax(const Vec3& min, const Vec3& max)
 {
 	return AABB((min + max) * 0.5f, (min - max) * 0.5f);
 }
 
-// Plane method
 float PlaneEquation(const Point& point, const Plane& plane)
 {
 	return Dot(point, plane.normal) - plane.distance;
 }
 
-
-// Point test methods
-// Point-Sphere
 bool PointInSphere(const Point& point, const Sphere& sphere)
 {
 	float magSq = MagnitudeSq(point - sphere.position);
@@ -91,14 +82,13 @@ bool PointInSphere(const Point& point, const Sphere& sphere)
 
 Point ClosestPoint(const Sphere& sphere, const Point& point)
 {
-	vec3 sphereToPoint = point - sphere.position;
+	Vec3 sphereToPoint = point - sphere.position;
 	Normalize(sphereToPoint);
 	sphereToPoint = sphereToPoint * sphere.radius;
 
 	return sphereToPoint + sphere.position;
 }
 
-// Point-AABB
 bool PointInAABB(const Point& point, const AABB& aabb)
 {
 	Point min = GetMin(aabb);
@@ -134,15 +124,14 @@ Point ClosestPoint(const AABB& aabb, const Point& point)
 	return result;
 }
 
-// Point-OBB
 bool PointInOBB(const Point& point, const OBB& obb)
 {
-	vec3 dir = point - obb.position;
+	Vec3 dir = point - obb.position;
 
 	for (int i = 0; i < 3; ++i)
 	{
 		const float* orientation = &obb.orientation.asArray[i * 3];
-		vec3 axis(
+		Vec3 axis(
 			orientation[0],
 			orientation[1],
 			orientation[2]);
@@ -164,12 +153,12 @@ bool PointInOBB(const Point& point, const OBB& obb)
 Point ClosestPoint(const OBB& obb, const Point& point)
 {
 	Point result = obb.position;
-	vec3 dir = point - obb.position;
+	Vec3 dir = point - obb.position;
 
 	for (int i = 0; i < 3; ++i)
 	{
 		const float* orientation = &obb.orientation.asArray[i * 3];
-		vec3 axis(
+		Vec3 axis(
 			orientation[0],
 			orientation[1], 
 			orientation[2]);
@@ -190,7 +179,6 @@ Point ClosestPoint(const OBB& obb, const Point& point)
 	return result;
 }
 
-// Point-Plane
 bool PointOnPlane(const Point& point, const Plane& plane)
 {
 	float dot = Dot(point, plane.normal);
@@ -204,7 +192,6 @@ Point ClosestPoint(const Plane& plane, const Point& point)
 	return point - plane.normal * distance;
 }
 
-// Point-Line
 bool PointOnLine(const Point& point, const Line& line)
 {
 	Point closest = ClosestPoint(line, point);
@@ -215,7 +202,7 @@ bool PointOnLine(const Point& point, const Line& line)
 
 Point ClosestPoint(const Line& line, const Point& point)
 {
-	vec3 lVec = line.end - line.start;
+	Vec3 lVec = line.end - line.start;
 	float t = Dot(point - line.start, lVec) / Dot(lVec, lVec);
 	t = fmaxf(t, 0.0f);
 	t = fminf(t, 1.0f);
@@ -223,7 +210,6 @@ Point ClosestPoint(const Line& line, const Point& point)
 	return line.start + lVec * t;
 }
 
-// Point-Ray
 bool PointOnRay(const Point& point, const Ray& ray)
 {
 	if (point == ray.origin)
@@ -231,24 +217,22 @@ bool PointOnRay(const Point& point, const Ray& ray)
 		return true;
 	}
 
-	vec3 norm = point - ray.origin;
+	Vec3 norm = point - ray.origin;
 	Normalize(norm);
 	float diff = Dot(norm, ray.direction);
 
-	return CMP(diff, 1.0); // Both vectors point in the same direction
+	return CMP(diff, 1.0f);
 }
 
 Point ClosestPoint(const Ray& ray, const Point& point)
 {
 	float t = Dot(point - ray.origin, ray.direction);
-	t /= Dot(ray.direction, ray.direction); // Normalize the direction, if needed
+	t /= Dot(ray.direction, ray.direction);
 	t = fmaxf(t, 0.0f);
 
 	return Point(ray.origin + ray.direction * t);
 }
 
-
-// 3D Shape Intersections
 bool SphereShpere(const Sphere& sphere1, const Sphere& sphere2)
 {
 	float radiiSum = sphere1.radius + sphere2.radius;
@@ -301,19 +285,16 @@ bool AABBOBB(const AABB& aabb, const OBB& obb)
 {
 	const float* orientation = obb.orientation.asArray;
 
-	vec3 test[15] =
+	Vec3 test[15] =
 	{
-		// AABB axes
-		vec3(1, 0, 0),
-		vec3(0, 1, 0),
-		vec3(0, 0, 1),
-		// OBB axes
-		vec3(orientation[0], orientation[1], orientation[2]),
-		vec3(orientation[3], orientation[4], orientation[5]),
-		vec3(orientation[6], orientation[7], orientation[8])
+		Vec3(1, 0, 0),
+		Vec3(0, 1, 0),
+		Vec3(0, 0, 1),
+		Vec3(orientation[0], orientation[1], orientation[2]),
+		Vec3(orientation[3], orientation[4], orientation[5]),
+		Vec3(orientation[6], orientation[7], orientation[8])
 	};
 
-	// Product between AABB axes and OBB axes
 	for (int i = 0; i < 3; ++i)
 	{
 		test[6 + i * 3 + 0] = Cross(test[i], test[0]);
@@ -325,11 +306,11 @@ bool AABBOBB(const AABB& aabb, const OBB& obb)
 	{
 		if (!OverlapOnAxis(aabb, obb, test[i]))
 		{
-			return false; // Separating axis found
+			return false;
 		}
 	}
 
-	return true; // No separating axis found
+	return true;
 }
 
 bool AABBPlane(const AABB& aabb, const Plane& plane)
@@ -349,19 +330,16 @@ bool OBBOBB(const OBB& obb1, const OBB& obb2)
 	const float* orientation1 = obb1.orientation.asArray;
 	const float* orientation2 = obb2.orientation.asArray;
 
-	vec3 test[15] =
+	Vec3 test[15] =
 	{
-		// OBB1 axes
-		vec3(orientation1[0], orientation1[1], orientation1[2]),
-		vec3(orientation1[3], orientation1[4], orientation1[5]),
-		vec3(orientation1[6], orientation1[7], orientation1[8]),
-		// OBB2 axes
-		vec3(orientation2[0], orientation2[1], orientation2[2]),
-		vec3(orientation2[3], orientation2[4], orientation2[5]),
-		vec3(orientation2[6], orientation2[7], orientation2[8])
+		Vec3(orientation1[0], orientation1[1], orientation1[2]),
+		Vec3(orientation1[3], orientation1[4], orientation1[5]),
+		Vec3(orientation1[6], orientation1[7], orientation1[8]),
+		Vec3(orientation2[0], orientation2[1], orientation2[2]),
+		Vec3(orientation2[3], orientation2[4], orientation2[5]),
+		Vec3(orientation2[6], orientation2[7], orientation2[8])
 	};
 
-	// Product between OBB1 and OBB2
 	for (int i = 0; i < 3; ++i)
 	{
 		test[6 + i * 3 + 0] = Cross(test[i], test[0]);
@@ -373,24 +351,24 @@ bool OBBOBB(const OBB& obb1, const OBB& obb2)
 	{
 		if (!OverlapOnAxis(obb1, obb2, test[i]))
 		{
-			return false; // Separating axis found
+			return false;
 		}
 	}
 
-	return true; // No separating axis found
+	return true;
 }
 
 bool OBBPlane(const OBB& obb, const Plane& plane)
 {
 	const float* orientation = obb.orientation.asArray;
-	vec3 rotation[] =
+	Vec3 rotation[] =
 	{
-		vec3(orientation[0], orientation[1], orientation[2]),
-		vec3(orientation[3], orientation[4], orientation[5]),
-		vec3(orientation[6], orientation[7], orientation[8])
+		Vec3(orientation[0], orientation[1], orientation[2]),
+		Vec3(orientation[3], orientation[4], orientation[5]),
+		Vec3(orientation[6], orientation[7], orientation[8])
 	};
 
-	vec3 normal = plane.normal;
+	Vec3 normal = plane.normal;
 	float pLen = obb.size.x * fabsf(Dot(normal, rotation[0])) +
 		obb.size.y * fabsf(Dot(normal, rotation[1])) +
 		obb.size.z * fabsf(Dot(normal, rotation[2]));
@@ -403,12 +381,11 @@ bool OBBPlane(const OBB& obb, const Plane& plane)
 
 bool PlanePlane(const Plane& plane1, const Plane& plane2)
 {
-	vec3 d = Cross(plane1.normal, plane2.normal);
+	Vec3 d = Cross(plane1.normal, plane2.normal);
 	return CMP(Dot(d, d), 0);
 }
 
-// Overlap on axis methods
-bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis)
+bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const Vec3& axis)
 {
 	Interval a = GetInterval(aabb, axis);
 	Interval b = GetInterval(obb, axis);
@@ -416,7 +393,7 @@ bool OverlapOnAxis(const AABB& aabb, const OBB& obb, const vec3& axis)
 	return ((b.min <= a.max) && (a.min <= b.max));
 }
 
-bool OverlapOnAxis(const OBB& obb1, const OBB& obb2, const vec3& axis)
+bool OverlapOnAxis(const OBB& obb1, const OBB& obb2, const Vec3& axis)
 {
 	Interval a = GetInterval(obb1, axis);
 	Interval b = GetInterval(obb2, axis);
@@ -424,22 +401,21 @@ bool OverlapOnAxis(const OBB& obb1, const OBB& obb2, const vec3& axis)
 	return ((b.min <= a.max) && (a.min <= b.max));
 }
 
-// Interval methods
-Interval GetInterval(const AABB& aabb, const vec3& axis)
+Interval GetInterval(const AABB& aabb, const Vec3& axis)
 {
-	vec3 min = GetMin(aabb);
-	vec3 max = GetMax(aabb);
+	Vec3 min = GetMin(aabb);
+	Vec3 max = GetMax(aabb);
 
-	vec3 vertex[8] =
+	Vec3 vertex[8] =
 	{
-		vec3(min.x, max.y, max.z),
-		vec3(min.x, max.y, min.z),
-		vec3(min.x, min.y, max.z),
-		vec3(min.x, min.y, min.z),
-		vec3(max.x, max.y, max.z),
-		vec3(max.x, max.y, min.z),
-		vec3(max.x, min.y, max.z),
-		vec3(max.x, min.y, min.z)
+		Vec3(min.x, max.y, max.z),
+		Vec3(min.x, max.y, min.z),
+		Vec3(min.x, min.y, max.z),
+		Vec3(min.x, min.y, min.z),
+		Vec3(max.x, max.y, max.z),
+		Vec3(max.x, max.y, min.z),
+		Vec3(max.x, min.y, max.z),
+		Vec3(max.x, min.y, min.z)
 	};
 
 	Interval result;
@@ -455,19 +431,19 @@ Interval GetInterval(const AABB& aabb, const vec3& axis)
 	return result;
 }
 
-Interval GetInterval(const OBB& obb, const vec3& axis)
+Interval GetInterval(const OBB& obb, const Vec3& axis)
 {
-	vec3 vertex[8];
-	vec3 C = obb.position; // OBB center
-	vec3 E = obb.size; // OBB extents
+	Vec3 vertex[8];
+	Vec3 C = obb.position;
+	Vec3 E = obb.size;
 
-	const float* O = obb.orientation.asArray; // OBB orientation
+	const float* O = obb.orientation.asArray;
 
-	vec3 A[] = // OBB axis
+	Vec3 A[] =
 	{
-		vec3(O[0], O[1], O[2]),
-		vec3(O[3], O[4], O[5]),
-		vec3(O[6], O[7], O[8])
+		Vec3(O[0], O[1], O[2]),
+		Vec3(O[3], O[4], O[5]),
+		Vec3(O[6], O[7], O[8])
 	};
 
 	vertex[0] = C + A[0] * E[0] + A[1] * E[1] + A[2] * E[2];
@@ -492,12 +468,11 @@ Interval GetInterval(const OBB& obb, const vec3& axis)
 	return result;
 }
 
-// Raycast methods
 bool Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult)
 {
 	ResetRaycastResult(outResult);
 
-	vec3 e = sphere.position - ray.origin;
+	Vec3 e = sphere.position - ray.origin;
 	float rSq = sphere.radius * sphere.radius;
 	float eSq = MagnitudeSq(e);
 	float a = Dot(e, ray.direction);
@@ -506,11 +481,11 @@ bool Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult)
 	float f = sqrt(rSq - bSq);
 	float t = a - f;
 
-	if (rSq - (eSq - (a * a)) < 0.0f) // No collision
+	if (rSq - (eSq - (a * a)) < 0.0f)
 	{
 		return false;
 	}
-	else if (eSq < rSq) // Ray starts inside the sphere
+	else if (eSq < rSq)
 	{
 		t = a + f;
 	}
@@ -530,8 +505,8 @@ bool Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult)
 {
 	ResetRaycastResult(outResult);
 
-	vec3 min = GetMin(aabb);
-	vec3 max = GetMax(aabb);
+	Vec3 min = GetMin(aabb);
+	Vec3 max = GetMax(aabb);
 
 	float t[] = { 0, 0, 0, 0, 0, 0 };
 
@@ -562,11 +537,11 @@ bool Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult)
 		outResult->hit = true;
 		outResult->point = ray.origin + ray.direction * t_result;
 
-		vec3 normals[] = 
+		Vec3 normals[] = 
 		{
-			vec3(-1, 0, 0), vec3(1, 0, 0),
-			vec3(0, -1, 0), vec3(0, 1, 0),
-			vec3(0, 0, -1), vec3(0, 0, 1)
+			Vec3(-1, 0, 0), Vec3(1, 0, 0),
+			Vec3(0, -1, 0), Vec3(0, 1, 0),
+			Vec3(0, 0, -1), Vec3(0, 0, 1)
 		};
 
 		for (int i = 0; i < 6; ++i)
@@ -587,19 +562,19 @@ bool Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult)
 
 	const float* orientation = obb.orientation.asArray;
 	const float* size = obb.size.asArray;
-	vec3 p = obb.position - ray.origin;
+	Vec3 p = obb.position - ray.origin;
 
-	vec3 xAxis(orientation[0], orientation[1], orientation[2]);
-	vec3 yAxis(orientation[3], orientation[4], orientation[5]);
-	vec3 zAxis(orientation[6], orientation[7], orientation[8]);	
+	Vec3 xAxis(orientation[0], orientation[1], orientation[2]);
+	Vec3 yAxis(orientation[3], orientation[4], orientation[5]);
+	Vec3 zAxis(orientation[6], orientation[7], orientation[8]);	
 
-	vec3 f (
+	Vec3 f (
 		Dot(xAxis, ray.direction),
 		Dot(yAxis, ray.direction),
 		Dot(zAxis, ray.direction)
 		);
 
-	vec3 e (
+	Vec3 e (
 		Dot(xAxis, p),
 		Dot(yAxis, p),
 		Dot(zAxis, p)
@@ -615,12 +590,11 @@ bool Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult)
 				return false;
 			}
 
-			// Avoid dividing by 0
 			f[i] = 0.00001f;
 		}
 
-		t[i * 2 + 0] = (e[i] + size[i]) / f[i]; // min
-		t[i * 2 + 1] = (e[i] - size[i]) / f[i]; // max
+		t[i * 2 + 0] = (e[i] + size[i]) / f[i];
+		t[i * 2 + 1] = (e[i] - size[i]) / f[i];
 	}
 
 	float tmin = fmaxf(
@@ -643,7 +617,7 @@ bool Raycast(const OBB& obb, const Ray& ray, RaycastResult* outResult)
 		outResult->t = t_result;
 		outResult->point = ray.origin + ray.direction * t_result;
 
-		vec3 normals[] =
+		Vec3 normals[] =
 		{
 			xAxis, xAxis * -1.0f,
 			yAxis, yAxis * -1.0f,
@@ -705,7 +679,7 @@ bool Raycast(const Triangle& triangle, const Ray& ray, RaycastResult* outResult)
 
 	float t = planeResult.t;
 	Point resultPoint = ray.origin + ray.direction * t;
-	vec3 barycentric = Barycentric(resultPoint, triangle);
+	Vec3 barycentric = Barycentric(resultPoint, triangle);
 
 	if (barycentric.x >= 0.0f && barycentric.x <= 1.0f &&
 		barycentric.y >= 0.0f && barycentric.y <= 1.0f &&
@@ -731,12 +705,11 @@ void ResetRaycastResult(RaycastResult* outResult)
 	{
 		outResult->t = -1;
 		outResult->hit = false;
-		outResult->normal = vec3(0, 0, 1);
-		outResult->point = vec3(0, 0, 0);
+		outResult->normal = Vec3(0, 0, 1);
+		outResult->point = Vec3(0, 0, 0);
 	}
 }
 
-// Linecast methods
 bool Linecast(const Sphere& sphere, const Line& line)
 {
 	Point closest = ClosestPoint(line, sphere.position);
@@ -781,12 +754,11 @@ bool Linecast(const OBB& obb, const Line& line)
 
 bool Linecast(const Plane& plane, const Line& line)
 {
-	vec3 ab = line.end - line.start;
+	Vec3 ab = line.end - line.start;
 
 	float nA = Dot(plane.normal, line.start);
 	float nAB = Dot(plane.normal, ab);
 
-	// Avoid divide by 0
 	if (nAB == 0.0f)
 	{
 		nAB = 0.0001f;
@@ -813,16 +785,15 @@ bool Linecast(const Triangle& triangle, const Line& line)
 	return t >= 0.0f && t * t <= LenghtSq(line);
 }
 
-// Triangle methods
 bool PointInTriangle(const Point& point, const Triangle& triangle)
 {
-	vec3 a = triangle.a - point;
-	vec3 b = triangle.b - point;
-	vec3 c = triangle.c - point;
+	Vec3 a = triangle.a - point;
+	Vec3 b = triangle.b - point;
+	Vec3 c = triangle.c - point;
 
-	vec3 normPBC = Cross(b, c);
-	vec3 normPCA = Cross(c, a);
-	vec3 normPAB = Cross(a, b);
+	Vec3 normPBC = Cross(b, c);
+	Vec3 normPCA = Cross(c, a);
+	Vec3 normPAB = Cross(a, b);
 
 	if (Dot(normPCA, normPAB) < 0.0f)
 	{
@@ -876,7 +847,7 @@ Point ClosestPoint(const Triangle& triangle, const Point& point)
 	return c3;
 }
 
-Interval GetInterval(const Triangle& triangle, const vec3& axis)
+Interval GetInterval(const Triangle& triangle, const Vec3& axis)
 {
 	Interval result;
 	result.min = Dot(axis, triangle.points[0]);
@@ -892,23 +863,23 @@ Interval GetInterval(const Triangle& triangle, const vec3& axis)
 	return result;
 }
 
-bool OverlapOnAxis(const AABB& aabb, const Triangle& triangle, const vec3& axis)
+bool OverlapOnAxis(const AABB& aabb, const Triangle& triangle, const Vec3& axis)
 {
 	Interval a = GetInterval(aabb, axis);
 	Interval b = GetInterval(triangle, axis);
 
 	return ((b.min <= a.max) && (a.min <= b.max));
 }
-
-bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const vec3& axis)
+/*
+bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const Vec3& axis)
 {
 	Interval a = GetInterval(obb, axis);
 	Interval b = GetInterval(triangle, axis);
 
 	return ((b.min <= a.max) && (a.min <= b.max));
-}
+}*/
 
-bool OverlapOnAxis(const Triangle& triangle1, const Triangle& triangle2, const vec3& axis)
+bool OverlapOnAxis(const Triangle& triangle1, const Triangle& triangle2, const Vec3& axis)
 {
 	Interval a = GetInterval(triangle1, axis);
 	Interval b = GetInterval(triangle2, axis);
@@ -916,11 +887,11 @@ bool OverlapOnAxis(const Triangle& triangle1, const Triangle& triangle2, const v
 	return ((b.min <= a.max) && (a.min <= b.max));
 }
 
-vec3 SATCrossEdge(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
+Vec3 SATCrossEdge(const Vec3& a, const Vec3& b, const Vec3& c, const Vec3& d)
 {
-	vec3 ab = a - b;
-	vec3 cd = c - d;
-	vec3 result = Cross(ab, cd);
+	Vec3 ab = a - b;
+	Vec3 cd = c - d;
+	Vec3 result = Cross(ab, cd);
 
 	if (!CMP(MagnitudeSq(result), 0))
 	{
@@ -928,7 +899,7 @@ vec3 SATCrossEdge(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
 	}
 	else
 	{
-		vec3 axis = Cross(ab, c - a);
+		Vec3 axis = Cross(ab, c - a);
 		result = Cross(ab, axis);
 
 		if (!CMP(MagnitudeSq(result), 0))
@@ -937,23 +908,23 @@ vec3 SATCrossEdge(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
 		}
 	}
 
-	return vec3();
+	return Vec3();
 }
 
-vec3 Barycentric(const Point& point, const Triangle& triangle)
+Vec3 Barycentric(const Point& point, const Triangle& triangle)
 {
-	vec3 ap = point - triangle.a;
-	vec3 bp = point - triangle.b;
-	vec3 cp = point - triangle.c;
+	Vec3 ap = point - triangle.a;
+	Vec3 bp = point - triangle.b;
+	Vec3 cp = point - triangle.c;
 
-	vec3 ab = triangle.b - triangle.a;
-	vec3 ac = triangle.c - triangle.a;
+	Vec3 ab = triangle.b - triangle.a;
+	Vec3 ac = triangle.c - triangle.a;
 
-	vec3 bc = triangle.c - triangle.b;
-	vec3 cb = triangle.b - triangle.c;
-	vec3 ca = triangle.a - triangle.c;
+	Vec3 bc = triangle.c - triangle.b;
+	Vec3 cb = triangle.b - triangle.c;
+	Vec3 ca = triangle.a - triangle.c;
 
-	vec3 v = ab - Project(ab, cb);
+	Vec3 v = ab - Project(ab, cb);
 	float a = 1.0f - (Dot(v, ap) / Dot(v, ab));
 
 	v = bc - Project(bc, ac);
@@ -962,10 +933,9 @@ vec3 Barycentric(const Point& point, const Triangle& triangle)
 	v = ca - Project(ca, ab);
 	float c = 1.0f - (Dot(v, cp) / Dot(v, ca));
 
-	return vec3(a, b, c);
+	return Vec3(a, b, c);
 }
 
-// Intersection tests
 bool TriangleSphere(const Triangle& triangle, const Sphere& sphere)
 {
 	Point closest = ClosestPoint(triangle, sphere.position);
@@ -976,15 +946,15 @@ bool TriangleSphere(const Triangle& triangle, const Sphere& sphere)
 
 bool TriangleAABB(const Triangle& triangle, const AABB& aabb)
 {
-	vec3 f0 = triangle.b - triangle.a;
-	vec3 f1 = triangle.c - triangle.b;
-	vec3 f2 = triangle.a - triangle.c;
+	Vec3 f0 = triangle.b - triangle.a;
+	Vec3 f1 = triangle.c - triangle.b;
+	Vec3 f2 = triangle.a - triangle.c;
 
-	vec3 u0(1.0f, 0.0f, 0.0f);
-	vec3 u1(0.0f, 1.0f, 0.0f);
-	vec3 u2(0.0f, 0.0f, 1.0f);
+	Vec3 u0(1.0f, 0.0f, 0.0f);
+	Vec3 u1(0.0f, 1.0f, 0.0f);
+	Vec3 u2(0.0f, 0.0f, 1.0f);
 
-	vec3 test[13] =
+	Vec3 test[13] =
 	{
 		u0, u1, u2,
 		Cross(f0, f1),
@@ -1006,16 +976,16 @@ bool TriangleAABB(const Triangle& triangle, const AABB& aabb)
 
 bool TriangleOBB(const Triangle& triangle, const OBB& obb)
 {
-	vec3 f0 = triangle.b - triangle.a;
-	vec3 f1 = triangle.c - triangle.b;
-	vec3 f2 = triangle.a - triangle.c;
+	Vec3 f0 = triangle.b - triangle.a;
+	Vec3 f1 = triangle.c - triangle.b;
+	Vec3 f2 = triangle.a - triangle.c;
 
 	const float* orientation = obb.orientation.asArray;
-	vec3 u0(orientation[0], orientation[1], orientation[2]);
-	vec3 u1(orientation[3], orientation[4], orientation[5]);
-	vec3 u2(orientation[6], orientation[7], orientation[8]);
+	Vec3 u0(orientation[0], orientation[1], orientation[2]);
+	Vec3 u1(orientation[3], orientation[4], orientation[5]);
+	Vec3 u2(orientation[6], orientation[7], orientation[8]);
 
-	vec3 test[13] =
+	Vec3 test[13] =
 	{
 		u0, u1, u2, 
 		Cross(f0, f1),
@@ -1035,18 +1005,18 @@ bool TriangleOBB(const Triangle& triangle, const OBB& obb)
 	return true;
 }
 
-bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const vec3& axis)
+bool OverlapOnAxis(const OBB& obb, const Triangle& triangle, const Vec3& axis)
 {
-	vec3 f0 = triangle.b - triangle.a;
-	vec3 f1 = triangle.c - triangle.b;
-	vec3 f2 = triangle.a - triangle.c;
+	Vec3 f0 = triangle.b - triangle.a;
+	Vec3 f1 = triangle.c - triangle.b;
+	Vec3 f2 = triangle.a - triangle.c;
 
 	const float* orientation = obb.orientation.asArray;
-	vec3 u0(orientation[0], orientation[1], orientation[2]);
-	vec3 u1(orientation[3], orientation[4], orientation[5]);
-	vec3 u2(orientation[6], orientation[7], orientation[8]);
+	Vec3 u0(orientation[0], orientation[1], orientation[2]);
+	Vec3 u1(orientation[3], orientation[4], orientation[5]);
+	Vec3 u2(orientation[6], orientation[7], orientation[8]);
 
-	vec3 test[13] =
+	Vec3 test[13] =
 	{
 		u0, u1, u2,
 		Cross(f0, f1),
@@ -1092,15 +1062,15 @@ bool TrianglePlane(const Triangle& triangle, const Plane& plane)
 
 bool TriangleTriangle(const Triangle& triangle1, const Triangle& triangle2)
 {
-	vec3 t1_f0 = triangle1.b - triangle1.a;
-	vec3 t1_f1 = triangle1.c - triangle1.b;
-	vec3 t1_f2 = triangle1.a - triangle1.c;
+	Vec3 t1_f0 = triangle1.b - triangle1.a;
+	Vec3 t1_f1 = triangle1.c - triangle1.b;
+	Vec3 t1_f2 = triangle1.a - triangle1.c;
 
-	vec3 t2_f0 = triangle2.b - triangle2.a;
-	vec3 t2_f1 = triangle2.c - triangle2.b;
-	vec3 t2_f2 = triangle2.a - triangle2.c;
+	Vec3 t2_f0 = triangle2.b - triangle2.a;
+	Vec3 t2_f1 = triangle2.c - triangle2.b;
+	Vec3 t2_f2 = triangle2.a - triangle2.c;
 
-	vec3 axisToTest[] =
+	Vec3 axisToTest[] =
 	{
 		Cross(t1_f0,t1_f1),
 		Cross(t2_f0,t2_f1),
@@ -1122,7 +1092,7 @@ bool TriangleTriangle(const Triangle& triangle1, const Triangle& triangle2)
 
 bool TriangleTriangleRobust(const Triangle& triangle1, const Triangle& triangle2)
 {
-	vec3 axisToTest[] =
+	Vec3 axisToTest[] =
 	{
 		SATCrossEdge(triangle1.a, triangle1.b, triangle1.b, triangle1.c),
 		SATCrossEdge(triangle2.a, triangle2.b, triangle2.b, triangle2.c),
@@ -1154,7 +1124,6 @@ bool TriangleTriangleRobust(const Triangle& triangle1, const Triangle& triangle2
 	return true;
 }
 
-// Mesh Methods
 void AccelarateMesh(Mesh& mesh)
 {
 	if (mesh.accelerator != 0)
@@ -1162,8 +1131,8 @@ void AccelarateMesh(Mesh& mesh)
 		return;
 	}
 
-	vec3 min = mesh.vertices[0];
-	vec3 max = mesh.vertices[0];
+	Vec3 min = mesh.vertices[0];
+	Vec3 max = mesh.vertices[0];
 	for (int i = 0; i < mesh.numTriangles * 3; ++i)
 	{
 		min.x = fminf(mesh.vertices[i].x, min.x);
@@ -1194,26 +1163,26 @@ void SplitBVHNode(BVHNode* node, const Mesh& model, int depth)
 		return;
 	}
 
-	if (node->children == 0) // The node is a leaf
+	if (node->children == 0)
 	{
 		if (node->numTriangles > 0)
 		{
 			node->children = new BVHNode[8];
-			vec3 c = node->bounds.position;
-			vec3 e = node->bounds.size * 0.5f;
+			Vec3 c = node->bounds.position;
+			Vec3 e = node->bounds.size * 0.5f;
 
-			node->children[0].bounds = AABB(c + vec3(-e.x, +e.y, -e.z), e);
-			node->children[1].bounds = AABB(c + vec3(+e.x, +e.y, -e.z), e);
-			node->children[2].bounds = AABB(c + vec3(-e.x, +e.y, +e.z), e);
-			node->children[3].bounds = AABB(c + vec3(+e.x, +e.y, +e.z), e);
-			node->children[4].bounds = AABB(c + vec3(-e.x, -e.y, -e.z), e);
-			node->children[5].bounds = AABB(c + vec3(+e.x, -e.y, -e.z), e);
-			node->children[6].bounds = AABB(c + vec3(-e.x, -e.y, +e.z), e);
-			node->children[7].bounds = AABB(c + vec3(+e.x, -e.y, +e.z), e);
+			node->children[0].bounds = AABB(c + Vec3(-e.x, +e.y, -e.z), e);
+			node->children[1].bounds = AABB(c + Vec3(+e.x, +e.y, -e.z), e);
+			node->children[2].bounds = AABB(c + Vec3(-e.x, +e.y, +e.z), e);
+			node->children[3].bounds = AABB(c + Vec3(+e.x, +e.y, +e.z), e);
+			node->children[4].bounds = AABB(c + Vec3(-e.x, -e.y, -e.z), e);
+			node->children[5].bounds = AABB(c + Vec3(+e.x, -e.y, -e.z), e);
+			node->children[6].bounds = AABB(c + Vec3(-e.x, -e.y, +e.z), e);
+			node->children[7].bounds = AABB(c + Vec3(+e.x, -e.y, +e.z), e);
 		}
 	}
 
-	if (node->children != 0 && node->numTriangles > 0) // The node was just split
+	if (node->children != 0 && node->numTriangles > 0)
 	{
 		for (int i = 0; i < 8; ++i)
 		{
@@ -1305,7 +1274,7 @@ float MeshRay(const Mesh& mesh, const Ray& ray)
 			BVHNode* iterator = *(toProcess.begin());
 			toProcess.erase(toProcess.begin());
 
-			if (!iterator->numTriangles >= 0)
+			if (iterator->numTriangles < 0)
 			{
 				for (int i = 0; i < iterator->numTriangles; ++i)
 				{
@@ -1626,18 +1595,17 @@ bool MeshTriangle(const Mesh& mesh, const Triangle& triangle)
 	return false;
 }
 
-// Model Methods
-mat4 GetWorldMatrix(const Model& model)
+Mat4 GetWorldMatrix(const Model& model)
 {
-	mat4 translation = Translation(model.position);
-	mat4 rotation = Rotation(
+	Mat4 translation = Translation(model.position);
+	Mat4 rotation = Rotation(
 		model.rotation.x, 
 		model.rotation.y, 
 		model.rotation.z);
 
-	mat4 localMat = rotation * translation;
+	Mat4 localMat = rotation * translation;
 	
-	mat4 parentMat;
+	Mat4 parentMat;
 	if (model.parent != 0)
 	{
 		parentMat = GetWorldMatrix(*model.parent);
@@ -1648,7 +1616,7 @@ mat4 GetWorldMatrix(const Model& model)
 
 OBB GetOBB(const Model& model)
 {
-	mat4 world = GetWorldMatrix(model);
+	Mat4 world = GetWorldMatrix(model);
 	AABB aabb = model.GetBounds();
 	OBB obb;
 
@@ -1661,8 +1629,8 @@ OBB GetOBB(const Model& model)
 
 float ModelRay(const Model& model, const Ray& ray)
 {
-	mat4 world = GetWorldMatrix(model);
-	mat4 inv = Inverse(world);
+	Mat4 world = GetWorldMatrix(model);
+	Mat4 inv = Inverse(world);
 	Ray local;
 	local.origin = MultiplyPoint(ray.origin, inv);
 	local.direction = MultiplyVector(ray.direction, inv);
@@ -1678,8 +1646,8 @@ float ModelRay(const Model& model, const Ray& ray)
 
 bool LineTest(const Model& model, const Line& line)
 {
-	mat4 world = GetWorldMatrix(model);
-	mat4 inv = Inverse(world);
+	Mat4 world = GetWorldMatrix(model);
+	Mat4 inv = Inverse(world);
 
 	Line local;
 	local.start = MultiplyPoint(line.start, inv);
@@ -1695,8 +1663,8 @@ bool LineTest(const Model& model, const Line& line)
 
 bool ModelSphere(const Model& model, const Sphere& sphere)
 {
-	mat4 world = GetWorldMatrix(model);
-	mat4 inv = Inverse(world);
+	Mat4 world = GetWorldMatrix(model);
+	Mat4 inv = Inverse(world);
 
 	Sphere local;
 	local.position = MultiplyPoint(sphere.position, inv);
@@ -1711,8 +1679,8 @@ bool ModelSphere(const Model& model, const Sphere& sphere)
 
 bool ModelAABB(const Model& model, const AABB& aabb)
 {
-	mat4 world = GetWorldMatrix(model);
-	mat4 inv = Inverse(world);
+	Mat4 world = GetWorldMatrix(model);
+	Mat4 inv = Inverse(world);
 
 	OBB local;
 	local.size = aabb.size;
@@ -1729,8 +1697,8 @@ bool ModelAABB(const Model& model, const AABB& aabb)
 
 bool ModelOBB(const Model& model, const OBB& obb)
 {
-	mat4 world = GetWorldMatrix(model);
-	mat4 inv = Inverse(world);
+	Mat4 world = GetWorldMatrix(model);
+	Mat4 inv = Inverse(world);
 
 	OBB local;
 	local.size = obb.size;
@@ -1747,8 +1715,8 @@ bool ModelOBB(const Model& model, const OBB& obb)
 
 bool ModelPlane(const Model& model, const Plane& plane)
 {
-	mat4 world = GetWorldMatrix(model);
-	mat4 inv = Inverse(world);
+	Mat4 world = GetWorldMatrix(model);
+	Mat4 inv = Inverse(world);
 
 	Plane local;
 	local.normal = MultiplyVector(plane.normal, inv);
@@ -1764,8 +1732,8 @@ bool ModelPlane(const Model& model, const Plane& plane)
 
 bool ModelTriangle(const Model& model, const Triangle& triangle)
 {
-	mat4 world = GetWorldMatrix(model);
-	mat4 inv = Inverse(world);
+	Mat4 world = GetWorldMatrix(model);
+	Mat4 inv = Inverse(world);
 
 	Triangle local;
 	local.a = MultiplyPoint(triangle.a, inv);
@@ -1780,20 +1748,19 @@ bool ModelTriangle(const Model& model, const Triangle& triangle)
 	return false;
 }
 
-// Frustum Methods
 Point Intersection(Plane plane1, Plane plane2, Plane plane3) 
 {
-	mat3 D(
+	Mat3 D(
 		plane1.normal.x, plane2.normal.x, plane3.normal.x,
 		plane1.normal.y, plane2.normal.y, plane3.normal.y, 
 		plane1.normal.z, plane2.normal.z, plane3.normal.z
 	);
 
-	vec3 A(-plane1.distance, -plane2.distance, -plane3.distance);
+	Vec3 A(-plane1.distance, -plane2.distance, -plane3.distance);
 
-	mat3 Dx = D;
-	mat3 Dy = D;
-	mat3 Dz = D;
+	Mat3 Dx = D;
+	Mat3 Dy = D;
+	Mat3 Dz = D;
 	Dx._11 = A.x; Dx._12 = A.y; Dx._13 = A.z;
 	Dy._21 = A.x; Dx._22 = A.y; Dx._23 = A.z;
 	Dz._31 = A.x; Dx._32 = A.y; Dx._33 = A.z;
@@ -1811,7 +1778,7 @@ Point Intersection(Plane plane1, Plane plane2, Plane plane3)
 	return Point(detDx / detD, detDy / detD, detDz / detD);
 }
 
-void GetCorners(const Frustum& frustum, vec3* outCorners)
+void GetCorners(const Frustum& frustum, Vec3* outCorners)
 {
 	outCorners[0] = Intersection(frustum.near, frustum.top,    frustum.left);
 	outCorners[1] = Intersection(frustum.near, frustum.top,    frustum.right);
@@ -1827,7 +1794,7 @@ bool Intersects(const Frustum& frustum, const Point& point)
 {
 	for (int i = 0; i < 6; ++i)
 	{
-		vec3 normal = frustum.planes[i].normal;
+		Vec3 normal = frustum.planes[i].normal;
 		float distance = frustum.planes[i].distance;
 		float side = Dot(point, normal) + distance;
 
@@ -1844,7 +1811,7 @@ bool Intersects(const Frustum& frustum, const Sphere& sphere)
 {
 	for (int i = 0; i < 6; ++i)
 	{
-		vec3 normal = frustum.planes[i].normal;
+		Vec3 normal = frustum.planes[i].normal;
 		float distance = frustum.planes[i].distance;
 		float side = Dot(sphere.position, normal) + distance;
 
@@ -1878,7 +1845,7 @@ float Classify(const AABB& aabb, const Plane& plane)
 
 float Classify(const OBB& obb, const Plane& plane)
 {
-	vec3 normal = MultiplyVector(plane.normal, obb.orientation);
+	Vec3 normal = MultiplyVector(plane.normal, obb.orientation);
 	float r = fabs(obb.size.x * plane.normal.x) +
 		fabs(obb.size.y * plane.normal.y) +
 		fabs(obb.size.z * plane.normal.z);
@@ -1922,9 +1889,8 @@ bool Intersects(const Frustum& frustum, const OBB& obb)
 	return true;
 }
 
-// Picking
-vec3 Uproject(const vec3& viewportPoint, const vec2& viewportOrigin,
-	const vec2& viewportSize, const mat4& view, const mat4& projection)
+Vec3 Uproject(const Vec3& viewportPoint, const Vec2& viewportOrigin,
+	const Vec2& viewportSize, const Mat4& view, const Mat4& projection)
 {
 	float normalized[4] = {
 		(viewportPoint.x - viewportOrigin.x) / viewportSize.x,
@@ -1952,11 +1918,11 @@ vec3 Uproject(const vec3& viewportPoint, const vec2& viewportOrigin,
 		ndcSpace[2] = 1.0f;
 	}
 
-	mat4 invProjection = Inverse(projection);
+	Mat4 invProjection = Inverse(projection);
 	float eyeSpace[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	Multiply(eyeSpace, ndcSpace, 1, 4, invProjection.asArray, 4, 4);
 
-	mat4 invView = Inverse(view);
+	Mat4 invView = Inverse(view);
 	float worldSpace[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	Multiply(worldSpace, eyeSpace, 1, 4, invView.asArray, 4, 4);
 
@@ -1967,22 +1933,22 @@ vec3 Uproject(const vec3& viewportPoint, const vec2& viewportOrigin,
 		worldSpace[2] /= worldSpace[3];
 	}
 
-	return vec3(worldSpace[0], worldSpace[1], worldSpace[2]);
+	return Vec3(worldSpace[0], worldSpace[1], worldSpace[2]);
 }
 
-Ray GetPickRay(const vec2& viewportPoint, const vec2& viewportOrigin,
-	const vec2& viewportSize, const mat4& view, const mat4& projection)
+Ray GetPickRay(const Vec2& viewportPoint, const Vec2& viewportOrigin,
+	const Vec2& viewportSize, const Mat4& view, const Mat4& projection)
 {
-	vec3 nearPoint(viewportPoint.x, viewportPoint.y, 0.0f);
-	vec3 farPoint(viewportPoint.x, viewportPoint.y, 1.0f);
+	Vec3 nearPoint(viewportPoint.x, viewportPoint.y, 0.0f);
+	Vec3 farPoint(viewportPoint.x, viewportPoint.y, 1.0f);
 	
-	vec3 pNear = Uproject(nearPoint, viewportOrigin, viewportSize,
+	Vec3 pNear = Uproject(nearPoint, viewportOrigin, viewportSize,
 		view, projection);
-	vec3 pFar = Uproject(farPoint, viewportOrigin, viewportSize,
+	Vec3 pFar = Uproject(farPoint, viewportOrigin, viewportSize,
 		view, projection);
 
-	vec3 normal = Normalized(pFar - pNear);
-	vec3 origin = pNear;
+	Vec3 normal = Normalized(pFar - pNear);
+	Vec3 origin = pNear;
 
 	return Ray(origin, normal);
 }

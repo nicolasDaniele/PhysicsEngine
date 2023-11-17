@@ -1,135 +1,120 @@
-#include "vectors.h"
+#include "Vectors.h"
 #include <cmath>
 #include <cfloat>
 
-#define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
-
-	//		METHOD IMPLEMENTATIONS
-
-// Operators Overload
-// Addition
-vec2 operator+(const vec2& v1, const vec2& v2)
+Vec2 operator+(const Vec2& v1, const Vec2& v2)
 {
 	return { v1.x + v2.x, v1.y + v2.y };
 }
 
-vec3 operator+(const vec3& v1, const vec3& v2)
+Vec3 operator+(const Vec3& v1, const Vec3& v2)
 {
 	return { v1.x + v2.x, v1.y + v2.y, v1.z+ v2.z };
 }
 
-// Substraction
-vec2 operator-(const vec2& v1, const vec2& v2)
+Vec2 operator-(const Vec2& v1, const Vec2& v2)
 {
 	return { v1.x - v2.x, v1.y - v2.y };
 }
 
-vec3 operator-(const vec3& v1, const vec3& v2)
+Vec3 operator-(const Vec3& v1, const Vec3& v2)
 {
 	return { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z };
 }
 
-// Vector Multiplication
-vec2 operator*(const vec2& v1, const vec2& v2)
+Vec2 operator*(const Vec2& v1, const Vec2& v2)
 {
 	return { v1.x * v2.x, v1.y * v2.y };
 }
 
-vec3 operator*(const vec3& v1, const vec3& v2)
+Vec3 operator*(const Vec3& v1, const Vec3& v2)
 {
 	return { v1.x * v2.x, v1.y * v2.y, v1.z * v2.z };
 }
 
-// Scalar Multiplication
-vec2 operator*(const vec2& v, float f)
+Vec2 operator*(const Vec2& v, float f)
 {
 	return { v.x * f, v.y * f };
 }
 
-vec3 operator*(const vec3& v, float f)
+Vec3 operator*(const Vec3& v, float f)
 {
 	return { v.x * f, v.y * f, v.z * f };
 }
 
-// Equality
-bool operator==(const vec2& v1, const vec2& v2)
+bool operator==(const Vec2& v1, const Vec2& v2)
 {
 	return CMP(v1.x, v2.x) && CMP(v1.y, v2.y);
 }
 
-bool operator==(const vec3& v1, const vec3& v2)
+bool operator==(const Vec3& v1, const Vec3& v2)
 {
 	return CMP(v1.x, v2.x) && CMP(v1.y, v2.y) && CMP(v1.z, v2.z);
 }
 
-bool operator!=(const vec2& v1, const vec2& v2)
+bool operator!=(const Vec2& v1, const Vec2& v2)
 {
 	return !(v1 == v2);
 }
 
-bool operator!=(const vec3& v1, const vec3& v2)
+bool operator!=(const Vec3& v1, const Vec3& v2)
 {
 	return !(v1 == v2);
 }
 
-// Dot Product
-float Dot(const vec2& v1, const vec2& v2)
+float Dot(const Vec2& v1, const Vec2& v2)
 {
 	return v1.x * v2.x + v1.y * v2.y;
 }
 
-float Dot(const vec3& v1, const vec3& v2)
+float Dot(const Vec3& v1, const Vec3& v2)
 {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-// Magnitude
-float Magnitude(const vec2& v) 
+float Magnitude(const Vec2& v) 
 {
 	return sqrtf(Dot(v, v));
 }
 
-float Magnitude(const vec3& v)
+float Magnitude(const Vec3& v)
 {
 	return sqrtf(Dot(v, v));
 }
 
-// Squared Magnitude
-float MagnitudeSq(const vec2& v)
+float MagnitudeSq(const Vec2& v)
 {
 	return Dot(v, v);
 }
 
-float MagnitudeSq(const vec3& v)
+float MagnitudeSq(const Vec3& v)
 {
 	return Dot(v, v);
 }
 
-// Vector Normalizing
-void Normalize(vec2& v)
+void Normalize(Vec2& v)
 {
 	v = v * (1.0f / Magnitude(v));
 }
 
-void Normalize(vec3& v)
+void Normalize(Vec3& v)
 {
 	v = v * (1.0f / Magnitude(v));
 }
 
-vec2 Normalized(const vec2& v)
+Vec2 Normalized(const Vec2& v)
 {
 	return v * (1.0f / Magnitude(v));
 }
 
-vec3 Normalized(const vec3& v)
+Vec3 Normalized(const Vec3& v)
 {
 	return v * (1.0f / Magnitude(v));
 }
 
-// Cross Product
-vec3 Cross(const vec3 v1, const vec3 v2)
+Vec3 Cross(const Vec3 v1, const Vec3 v2)
 {
-	vec3 result;
+	Vec3 result;
 
 	result.x = v1.y * v2.z - v1.z * v2.y;
 	result.y = v1.z * v2.x - v1.x * v2.z;
@@ -138,52 +123,49 @@ vec3 Cross(const vec3 v1, const vec3 v2)
 	return result;
 }
 
-// Angle
-float Angle(const vec2& v1, const vec2& v2)
+float Angle(const Vec2& v1, const Vec2& v2)
 {
 	float m = sqrtf(MagnitudeSq(v1) * MagnitudeSq(v2));
 	return acos(Dot(v1, v2) / m);
 }
 
-float Angle(const vec3& v1, const vec3& v2)
+float Angle(const Vec3& v1, const Vec3& v2)
 {
 	float m = sqrtf(MagnitudeSq(v1) * MagnitudeSq(v2));
 	return acos(Dot(v1, v2) / m);
 }
 
-// Projection
-vec2 Project(const vec2& length, const vec2& direction)
+Vec2 Project(const Vec2& length, const Vec2& direction)
 {
 	float dot = Dot(length, direction);
 	float magSq = MagnitudeSq(direction);
 	return direction * (dot / magSq);
 }
 
-vec3 Project(const vec3& length, const vec3& direction)
+Vec3 Project(const Vec3& length, const Vec3& direction)
 {
 	float dot = Dot(length, direction);
 	float magSq = MagnitudeSq(direction);
 	return direction * (dot / magSq);
 }
 
-vec2 Peroendicular(const vec2& length, const vec2& direction)
+Vec2 Perpendicular(const Vec2& length, const Vec2& direction)
 {
 	return length - Project(length, direction);
 }
 
-vec3 Peroendicular(const vec3& length, const vec3& direction)
+Vec3 Perpendicular(const Vec3& length, const Vec3& direction)
 {
 	return length - Project(length, direction);
 }
 
-// Reflection
-vec2 Reflection(const vec2& vec, const vec2& normal)
+Vec2 Reflection(const Vec2& vec, const Vec2& normal)
 {
 	float dot = Dot(vec, normal);
 	return vec - normal * (dot * 2.0f); 
 }
 
-vec3 Reflection(const vec3& vec, const vec3& normal)
+Vec3 Reflection(const Vec3& vec, const Vec3& normal)
 {
 	float dot = Dot(vec, normal);
 	return vec - normal * (dot * 2.0f);

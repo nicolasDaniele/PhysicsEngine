@@ -1,12 +1,8 @@
 #pragma once
-#ifndef _H_MATH_MATRICES_
-#define _H_MATH_MATRICES_
 
-#include "vectors.h"
+#include "Vectors.h"
 
-//			STRUCTURE DEFINITIONS
-// MAT2
-typedef struct mat2
+typedef struct Mat2
 {
 	union
 	{
@@ -18,14 +14,13 @@ typedef struct mat2
 		float asArray[4];
 	};
 
-	// Default inline Constructor
-	inline mat2()
+	inline Mat2()
 	{
 		_11 = _22 = 1.0f;
 		_12 = _21 = 0.0f;
 	}
 
-	inline mat2(float f11, float f12,
+	inline Mat2(float f11, float f12,
 		float f21, float f22)
 	{
 		_11 = f11; _12 = f12;
@@ -36,10 +31,9 @@ typedef struct mat2
 	{
 		return &(asArray[i * 2]);
 	}
-} mat2;
+} Mat2;
 
-// MAT3
-typedef struct mat3
+typedef struct Mat3
 {
 	union
 	{
@@ -52,15 +46,14 @@ typedef struct mat3
 		float asArray[9];
 	};
 
-	// Default inline Constructor
-	inline mat3()
+	inline Mat3()
 	{
 		_11 = _22 = _33 = 1.0f;
 		_12 = _13 = _21 = 0.0f;
 		_23 = _31 = _32 = 0.0f;
 	}
 
-	inline mat3(float f11, float f12, float f13,
+	inline Mat3(float f11, float f12, float f13,
 		float f21, float f22, float f23,
 		float f31, float f32, float f33)
 	{
@@ -73,10 +66,9 @@ typedef struct mat3
 	{
 		return &(asArray[i * 3]);
 	}
-} mat3;
+} Mat3;
 
-// MAT4
-typedef struct mat4
+typedef struct Mat4
 {
 	union
 	{
@@ -90,8 +82,7 @@ typedef struct mat4
 		float asArray[16];
 	};
 
-	// Default inline Constructor
-	inline mat4()
+	inline Mat4()
 	{
 		_11 = _22 = _33 = _44 = 1.0f;
 		_12 = _13 = _14 = _21 = 0.0f;
@@ -99,7 +90,7 @@ typedef struct mat4
 		_34 = _41 = _42 = _43 = 0.0f;
 	}
 
-	inline mat4(float f11, float f12, float f13, float f14,
+	inline Mat4(float f11, float f12, float f13, float f14,
 		float f21, float f22, float f23, float f24,
 		float f31, float f32, float f33, float f34,
 		float f41, float f42, float f43, float f44)
@@ -114,112 +105,83 @@ typedef struct mat4
 	{
 		return &(asArray[i * 4]);
 	}
-} mat4;
+} Mat4;
 
-
-//			METHOD DECLARATIONS
-// Transpose
-// Gereric Transpose
 void Transpose(const float *srcMat, float *dstMat,
 	int srcRows, int srcCols);
-// Specific Matrices Transposes
-mat2 Transpose(const mat2& matrix);
-mat3 Transpose(const mat3& matrix);
-mat4 Transpose(const mat4& matrix);
+Mat2 Transpose(const Mat2& matrix);
+Mat3 Transpose(const Mat3& matrix);
+Mat4 Transpose(const Mat4& matrix);
 
-// Multiplication
-// Scalar Multiplication
-mat2 operator* (const mat2& matrix, float scalar);
-mat3 operator* (const mat3& matrix, float scalar);
-mat4 operator* (const mat4& matrix, float scalar);
-// Matrix-Matrix Multiplication
-// Generic Multiplication
+Mat2 operator* (const Mat2& matrix, float scalar);
+Mat3 operator* (const Mat3& matrix, float scalar);
+Mat4 operator* (const Mat4& matrix, float scalar);
+
 bool Multiply(float* out, const float* matA, int aRows,
 	int aCols, const float* matB, int bRows, int bCols);
-// Specific Matrices Multiplications
-mat2 operator* (const mat2& matA, const mat2& matB);
-mat3 operator* (const mat3& matA, const mat3& matB);
-mat4 operator* (const mat4& matA, const mat4& matB);
 
-// Determinants
-// Determinant of a 2x2 Matrix
-float Determinant(const mat2& matrix);
-// Determinant of a 3x3 Matrix
-float Determinant(const mat3& matrix);
+Mat2 operator* (const Mat2& matA, const Mat2& matB);
+Mat3 operator* (const Mat3& matA, const Mat3& matB);
+Mat4 operator* (const Mat4& matA, const Mat4& matB);
 
-// Matrix of Minors
-mat2 Cut(const mat3& mat, int row, int col);
-mat2 Minor(const mat2& mat);
-mat3 Minor(const mat3& mat);
+float Determinant(const Mat2& matrix);
+float Determinant(const Mat3& matrix);
 
-// Cofactor
-// Generic Cofactor
+Mat2 Cut(const Mat3& mat, int row, int col);
+Mat2 Minor(const Mat2& mat);
+Mat3 Minor(const Mat3& mat);
+
 void Cofactor(float* out, const float* minor,
 	int rowa, int cols);
-// Specific Matrix Cofactors
-mat3 Cofactor(const mat3& mat);
-mat2 Cofactor(const mat2& mat);
+Mat3 Cofactor(const Mat3& mat);
+Mat2 Cofactor(const Mat2& mat);
 
-// For operations on 4x4 matrices
-mat3 Cut(const mat4& mat, int row, int col);
-mat4 Minor(const mat4& mat);
-mat4 Cofactor(const mat4& mat);
-float Determinant(const mat4& mat);
+Mat3 Cut(const Mat4& mat, int row, int col);
+Mat4 Minor(const Mat4& mat);
+Mat4 Cofactor(const Mat4& mat);
+float Determinant(const Mat4& mat);
 
-// Adjugate Matrix
-mat2 Adjugate(const mat2& mat);
-mat3 Adjugate(const mat3& mat);
-mat4 Adjugate(const mat4& mat);
+Mat2 Adjugate(const Mat2& mat);
+Mat3 Adjugate(const Mat3& mat);
+Mat4 Adjugate(const Mat4& mat);
 
-// Matrix Inverse
-mat2 Inverse(const mat2& mat);
-mat3 Inverse(const mat3& mat);
-mat4 Inverse(const mat4& mat);
+Mat2 Inverse(const Mat2& mat);
+Mat3 Inverse(const Mat3& mat);
+Mat4 Inverse(const Mat4& mat);
 
+Mat4 Translation(float x, float y, float z);
+Mat4 Translation(const Vec3& pos);
+Vec3 GetTranslation(const Mat4& mat);
 
-//		MATRIX TRANSFORMATIONS
-// Translation
-mat4 Translation(float x, float y, float z);
-mat4 Translation(const vec3& pos);
-vec3 GetTranslation(const mat4& mat);
+Mat4 Scale(float x, float y, float z);
+Mat4 Scale(const Vec3& vec);
+Vec3 GetScale(const Mat4& mat);
 
-// Scaling
-mat4 Scale(float x, float y, float z);
-mat4 Scale(const vec3& vec);
-vec3 GetScale(const mat4& mat);
+Mat4 Rotation(float pitch, float yaw, float roll);
+Mat3 Rotation3x3(float pitch, float yaw, float roll);
 
-// Rotation
-mat4 Rotation(float pitch, float yaw, float roll);
-mat3 Rotation3x3(float pitch, float yaw, float roll);
+Mat4 ZRotation(float angle);
+Mat3 ZRotation3x3(float angle);
+Mat4 XRotation(float angle);
+Mat3 XRotation3x3(float angle);
+Mat4 YRotation(float angle);
+Mat3 YRotation3x3(float angle);
 
-mat4 ZRotation(float angle);
-mat3 ZRotation3x3(float angle);
-mat4 XRotation(float angle);
-mat3 XRotation3x3(float angle);
-mat4 YRotation(float angle);
-mat3 YRotation3x3(float angle);
+Mat4 AxisAngle(const Vec3& axis, float angle);
+Mat3 AxisAngle3x3(const Vec3& axis, float angle);
 
-mat4 AxisAngle(const vec3& axis, float angle);
-mat3 AxisAngle3x3(const vec3& axis, float angle);
+Vec3 MultiplyPoint(const Vec3& vec, const Mat4& mat);
+Vec3 MultiplyVector(const Vec3& vec, const Mat4& mat);
+Vec3 MultiplyVector(const Vec3& vec, const Mat3& mat);
 
-// Vector-Matrix Multiplications
-vec3 MultiplyPoint(const vec3& vec, const mat4& mat);
-vec3 MultiplyVector(const vec3& vec, const mat4& mat);
-vec3 MultiplyVector(const vec3& vec, const mat3& mat);
+Mat4 Transform(const Vec3& scale, const Vec3& eulerRotation, 
+	const Vec3& translate);
+Mat4 Transform(const Vec3& scale, const Vec3& rotationAxis, 
+	float rotationAngle, const Vec3& translate);
 
-// Transform Matrix
-mat4 Transform(const vec3& scale, const vec3& eulerRotation, 
-	const vec3& translate);
-mat4 Transform(const vec3& scale, const vec3& rotationAxis, 
-	float rotationAngle, const vec3& translate);
+Mat4 LookAt(const Vec3& position, const Vec3& target, const Vec3& up);
 
-// View Matrix
-mat4 LookAt(const vec3& position, const vec3& target, const vec3& up);
-
-// Projection Matrix
-mat4 Projection(float fov, float aspect,
+Mat4 Projection(float fov, float aspect,
 	float zNear, float zFar);
-mat4 Ortho(float left, float right, float bottom,
+Mat4 Ortho(float left, float right, float bottom,
 	float top, float zNear, float zFar);
-
-#endif

@@ -1,6 +1,5 @@
 #pragma once
-#ifndef _H_QUAD_TREEE
-#define _H_QUAD_TREEE
+
 #include "Geometry2D.h"
 #include <vector>
 
@@ -8,7 +7,7 @@ using std::vector;
 
 struct QuadTreeData
 {
-	void* object; // Placeholder for GameObject class
+	void* object;
 	Rectangle2D bounds;
 	bool flag;
 
@@ -41,8 +40,3 @@ public:
 };
 
 typedef QuadTreeNode QuadTree;
-
-
-
-
-#endif

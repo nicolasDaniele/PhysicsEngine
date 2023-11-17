@@ -1,13 +1,8 @@
 #include "Geometry2D.h"
-#include "matrices.h"
+#include "Matrices.h"
 #include <cmath>
 #include <cfloat>
 
-#define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
-#define CLAMP(number, minimum, maximum) number = (number < minimum) ? minimum : (number > maximum) ? maximum : number
-#define OVERLAP(aMin, aMax, bMin, bMax) ((bMin <= aMax) && (aMin <= bMax|))
-
-// Line2D methods
 float Legth(const Line2D& line)
 {
 	return Magnitude(line.end - line.start);
@@ -18,40 +13,35 @@ float LengthSq(const Line2D& line)
 	return MagnitudeSq(line.end - line.start);
 }
 
-// Rectangle2D methods
-vec2 GetMin(const Rectangle2D& rect)
+Vec2 GetMin(const Rectangle2D& rect)
 {
-	vec2 p1 = rect.origin;
-	vec2 p2 = rect.origin + rect.size;
+	Vec2 p1 = rect.origin;
+	Vec2 p2 = rect.origin + rect.size;
 
 	return { fminf(p1.x, p2.x), fminf(p1.y, p2.y) };
 }
 
-vec2 GetMax(const Rectangle2D& rect)
+Vec2 GetMax(const Rectangle2D& rect)
 {
-	vec2 p1 = rect.origin;
-	vec2 p2 = rect.origin + rect.size;
+	Vec2 p1 = rect.origin;
+	Vec2 p2 = rect.origin + rect.size;
 
 	return { fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y) };
 }
 
-Rectangle2D FromMinMax(const vec2& min, const vec2& max)
+Rectangle2D FromMinMax(const Vec2& min, const Vec2& max)
 {
 	return Rectangle2D(min, max - min);
 }
 
-// Point Containment
 bool PointOnLine(const Point2D& point, const Line2D& line)
 {
-	// Find the slope
 	float dy = (line.end.y - line.start.y);
 	float dx = (line.end.x - line.start.x);
 	float M = dy / dx;
 
-	// Find the Y-Intercept
 	float B = line.start.y - M * line.start.x;
 
-	// Check line equation
 	return CMP(point.y, M * point.x + B);
 }
 
@@ -69,8 +59,8 @@ bool PointInCircle(const Point2D& point, const Circle& circle)
 
 bool PointInRectangle(const Point2D& point, const Rectangle2D& rectangle)
 {
-	vec2 min = GetMin(rectangle);
-	vec2 max = GetMax(rectangle);
+	Vec2 min = GetMin(rectangle);
+	Vec2 max = GetMax(rectangle);
 
 	return min.x <= point.x &&
 		min.y <= point.y &&
@@ -81,7 +71,7 @@ bool PointInRectangle(const Point2D& point, const Rectangle2D& rectangle)
 bool PointInOrientedRectangle(const Point2D& point,
 	const OrientedRectangle& rectangle)
 {
-	vec2 rotVector = point - rectangle.position;
+	Vec2 rotVector = point - rectangle.position;
 	float theta = -DEG2RAD(rectangle.rotation);
 	float zRotation2x2[] =
 	{
@@ -90,20 +80,19 @@ bool PointInOrientedRectangle(const Point2D& point,
 	};
 
 	Multiply(rotVector.asArray, 
-		vec2(rotVector.x, rotVector.y).asArray,
+		Vec2(rotVector.x, rotVector.y).asArray,
 		1, 2, zRotation2x2, 2, 2);
 
 	Rectangle2D localRectangle(Point2D(),
 		rectangle.halfExtents * 2.0f);
-	vec2 localPoint = rotVector + rectangle.halfExtents;
+	Vec2 localPoint = rotVector + rectangle.halfExtents;
 
 	return PointInRectangle(localPoint, localRectangle);
 }
 
-// Line Intersection
 bool LineCircle(const Line2D& line, const Circle& circle)
 {
-	vec2 ab = line.end - line.start;
+	Vec2 ab = line.end - line.start;
 	float t = Dot(circle.position - line.start, ab) / Dot(ab, ab);
 
 	if (t < 0.0f || t > 1.0f)
@@ -125,12 +114,12 @@ bool LineRectangle(const Line2D& line, const Rectangle2D& rectangle)
 		return true;
 	}
 
-	vec2 norm = Normalized(line.end - line.start);
+	Vec2 norm = Normalized(line.end - line.start);
 	norm.x = (norm.x != 0) ? 1.0f / norm.x : 0;
 	norm.y = (norm.y != 0) ? 1.0f / norm.y : 0;
 	
-	vec2 min = (GetMin(rectangle) - line.start) * norm;
-	vec2 max = (GetMax(rectangle) - line.start) * norm;
+	Vec2 min = (GetMin(rectangle) - line.start) * norm;
+	Vec2 max = (GetMax(rectangle) - line.start) * norm;
 
 	float tmin = fmaxf
 	(
@@ -163,15 +152,15 @@ bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect)
 	};
 	
 	Line2D localLine;
-	vec2 rotVector = line.start - rect.position;
+	Vec2 rotVector = line.start - rect.position;
 
-	Multiply(rotVector.asArray, vec2(rotVector.x, rotVector.y).asArray,
+	Multiply(rotVector.asArray, Vec2(rotVector.x, rotVector.y).asArray,
 		1, 2, zRotation2x2, 2, 2);
 	
 	localLine.start = rotVector + rect.halfExtents;
 	rotVector = line.end - rect.position;
 
-	Multiply(rotVector.asArray, vec2(rotVector.x, rotVector.y).asArray,
+	Multiply(rotVector.asArray, Vec2(rotVector.x, rotVector.y).asArray,
 		1, 2, zRotation2x2, 2, 2);
 
 	localLine.end = rotVector + rect.halfExtents;
@@ -182,7 +171,6 @@ bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect)
 	return LineRectangle(localLine, localRectangle);
 }
 
-//		COLLISIONS
 bool CircleCircle(const Circle& circle1, const Circle& circle2)
 {
 	Line2D line(circle1.position, circle2.position);
@@ -193,8 +181,8 @@ bool CircleCircle(const Circle& circle1, const Circle& circle2)
 
 bool CircleRectangle(const Circle& circle, const Rectangle2D& rectangle)
 {
-	vec2 min = GetMin(rectangle);
-	vec2 max = GetMax(rectangle);
+	Vec2 min = GetMin(rectangle);
+	Vec2 max = GetMax(rectangle);
 	Point2D closestPoint = circle.position;
 
 	CLAMP(closestPoint.x, min.x, max.x);
@@ -206,7 +194,7 @@ bool CircleRectangle(const Circle& circle, const Rectangle2D& rectangle)
 
 bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rectangle)
 {
-	vec2 r = circle.position - rectangle.position;
+	Vec2 r = circle.position - rectangle.position;
 	float theta = -DEG2RAD(rectangle.rotation);
 	float zRotation2x2[] =
 	{
@@ -214,7 +202,7 @@ bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rect
 		-sinf(theta), cosf(theta)
 	};
 
-	Multiply(r.asArray, vec2(r.x, r.y).asArray, 1, 2, zRotation2x2, 2, 2);
+	Multiply(r.asArray, Vec2(r.x, r.y).asArray, 1, 2, zRotation2x2, 2, 2);
 
 	Circle localCircle(r + rectangle.halfExtents, circle.radius);
 	Rectangle2D localRectangle(Point2D(), rectangle.halfExtents * 2.0f);
@@ -224,10 +212,10 @@ bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rect
 
 bool RectangleRectangle(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2)
 {
-	vec2 aMin = GetMin(rectangle1);
-	vec2 aMax = GetMax(rectangle1);
-	vec2 bMin = GetMin(rectangle2);
-	vec2 bMax = GetMax(rectangle2);
+	Vec2 aMin = GetMin(rectangle1);
+	Vec2 aMax = GetMax(rectangle1);
+	Vec2 bMin = GetMin(rectangle2);
+	Vec2 bMax = GetMax(rectangle2);
 
 	bool overX = ((bMin.x <= aMax.x) && (aMin.x <= bMax.x));
 	bool overY = ((bMin.y <= aMax.y) && (aMin.y <= bMax.y));
@@ -235,24 +223,21 @@ bool RectangleRectangle(const Rectangle2D& rectangle1, const Rectangle2D& rectan
 	return overX && overY;
 }
 
-//		COLLISIONS USING THE SEPARATING AXIS THEOREM (SAT)
-// Rectangle-Rectangle
-Interval2D GetInteval(const Rectangle2D& rectangle, const vec2& axis)
+Interval2D GetInteval(const Rectangle2D& rectangle, const Vec2& axis)
 {
 	Interval2D result;
-	vec2 min = GetMin(rectangle);
-	vec2 max = GetMax(rectangle);
+	Vec2 min = GetMin(rectangle);
+	Vec2 max = GetMax(rectangle);
 
-	// Get all vertices of rectangle
-	vec2 vertices[] =
+	Vec2 vertices[] =
 	{
-		vec2(min.x, min.y), vec2(min.x, max.y),
-		vec2(max.x, max.y), vec2(max.x, min.y)
+		Vec2(min.x, min.y), Vec2(min.x, max.y),
+		Vec2(max.x, max.y), Vec2(max.x, min.y)
 	};
 
 	result.min = result.max = Dot(axis, vertices[0]);
 
-	for(int i = 0; i < 4; ++i)
+	for(int i = 0; i < 4; i++)
 	{
 		float projection = Dot(axis, vertices[i]);
 		result.min = (projection < result.min) ? projection : result.min;
@@ -262,7 +247,7 @@ Interval2D GetInteval(const Rectangle2D& rectangle, const vec2& axis)
 	return result;
 }
 
-bool OverlapOnAxis(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2, const vec2& axis)
+bool OverlapOnAxis(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2, const Vec2& axis)
 {
 	Interval2D a = GetInteval(rectangle1, axis);
 	Interval2D b = GetInteval(rectangle2, axis);
@@ -272,31 +257,28 @@ bool OverlapOnAxis(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2,
 
 bool RectangleRectangleSAT(const Rectangle2D& rectangle1, const Rectangle2D& rectangle2)
 {
-	vec2 axisToTest[] = { vec2(1, 0), vec2(0, 1) };
+	Vec2 axisToTest[] = { Vec2(1, 0), Vec2(0, 1) };
 
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 2; i++)
 	{
-		// Intervals don't overlap, separating axis found
 		if (!OverlapOnAxis(rectangle1, rectangle2, axisToTest[i]))
-			return false; // No collision found
+			return false;
 	}
 
-	// All intervals overlap, separating axis not found
-	return true; // Collision found
+	return true;
 }
 
-//Rectangle-OrientedRectangle
-Interval2D GetInterval(const OrientedRectangle& rectangle, const vec2& axis)
+Interval2D GetInterval(const OrientedRectangle& rectangle, const Vec2& axis)
 {
 	Rectangle2D r = Rectangle2D(Point2D(rectangle.position - rectangle.halfExtents),
 		rectangle.halfExtents * 2);
 
-	vec2 min = GetMin(r);
-	vec2 max = GetMax(r);
-	vec2 vertices[] =
+	Vec2 min = GetMin(r);
+	Vec2 max = GetMax(r);
+	Vec2 vertices[] =
 	{
 		min, max,
-		vec2(min.x, max.y), vec2(max.x, min.y)
+		Vec2(min.x, max.y), Vec2(max.x, min.y)
 	};
 
 	float t = DEG2RAD(rectangle.rotation);
@@ -306,16 +288,16 @@ Interval2D GetInterval(const OrientedRectangle& rectangle, const vec2& axis)
 		-sinf(t), cosf(t)
 	};
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 4; i++)
 	{
-		vec2 r = vertices[i] - rectangle.position;
-		Multiply(r.asArray, vec2(r.x, r.y).asArray, 1, 2, zRot, 2, 2);
+		Vec2 r = vertices[i] - rectangle.position;
+		Multiply(r.asArray, Vec2(r.x, r.y).asArray, 1, 2, zRot, 2, 2);
 		vertices[i] = r + rectangle.position;
 	}
 
 	Interval2D result;
 	result.min = result.max = Dot(axis, vertices[0]);
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 4; i++)
 	{
 		float projection = Dot(axis, vertices[i]);
 		result.min = (projection < result.min) ? projection : result.min;
@@ -326,7 +308,7 @@ Interval2D GetInterval(const OrientedRectangle& rectangle, const vec2& axis)
 }
 
 bool OverlapOnAxis(const Rectangle2D& rectangle1,
-	const OrientedRectangle& rectangle2, const vec2& axis)
+	const OrientedRectangle& rectangle2, const Vec2& axis)
 {
 	Interval2D a = GetInteval(rectangle1, axis);
 	Interval2D b = GetInterval(rectangle2, axis);
@@ -336,10 +318,10 @@ bool OverlapOnAxis(const Rectangle2D& rectangle1,
 
 bool RectangleOrientedRectangle(const Rectangle2D& rectangle1, const OrientedRectangle& rectangle2)
 {
-	vec2 axisToTest[] =
+	Vec2 axisToTest[] =
 	{
-		vec2(1, 0), vec2(0, 1),
-		vec2(), vec2()
+		Vec2(1, 0), Vec2(0, 1),
+		Vec2(), Vec2()
 	};
 
 	float t = DEG2RAD(rectangle2.rotation);
@@ -349,27 +331,26 @@ bool RectangleOrientedRectangle(const Rectangle2D& rectangle1, const OrientedRec
 		-sinf(t), cosf(t)
 	};
 
-	vec2 axis = Normalized(vec2(rectangle2.halfExtents.x, 0));
+	Vec2 axis = Normalized(Vec2(rectangle2.halfExtents.x, 0));
 	Multiply(axisToTest[2].asArray, axis.asArray, 1, 2, zRot, 2, 2);
 
-	axis = Normalized(vec2(0, rectangle2.halfExtents.y));
+	axis = Normalized(Vec2(0, rectangle2.halfExtents.y));
 	Multiply(axisToTest[3].asArray, axis.asArray, 1, 2, zRot, 2, 2);
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 4; i++)
 	{
 		if (!OverlapOnAxis(rectangle1, rectangle2, axis))
-			return false; // No collision was found
+			return false;
 	}
 
-	return true; // Collision was found
+	return true;
 }
 
-// OrientedRectangle-OrientedRectangle
 bool OrientedRectangleOrientedRectangle(const OrientedRectangle& rectangle1,
 	const OrientedRectangle& rectangle2)
 {
 	Rectangle2D local1(Point2D(), rectangle1.halfExtents * 2.0f);
-	vec2 r = rectangle2.position - rectangle1.position;
+	Vec2 r = rectangle2.position - rectangle1.position;
 
 	OrientedRectangle local2(rectangle2.position, 
 		rectangle2.halfExtents, rectangle2.rotation);
@@ -382,18 +363,17 @@ bool OrientedRectangleOrientedRectangle(const OrientedRectangle& rectangle1,
 		-sinf(t), cosf(t)
 	};
 
-	Multiply(r.asArray, vec2(r.x, r.y).asArray, 1, 2, zRot, 2, 2);
+	Multiply(r.asArray, Vec2(r.x, r.y).asArray, 1, 2, zRot, 2, 2);
 	local2.position = r + rectangle1.halfExtents;
 
 	return RectangleOrientedRectangle(local1, local2);
 }
 
-//		2D OPTIMIZATIONS
 Circle ContainingCircle(Point2D* pointsArray, int arrayCount)
 {
 	Point2D center;
 
-	for (int i = 0; i < arrayCount; ++i)
+	for (int i = 0; i < arrayCount; i++)
 	{
 		center = center + pointsArray[i];
 	}
@@ -402,7 +382,7 @@ Circle ContainingCircle(Point2D* pointsArray, int arrayCount)
 
 	Circle result(center, 1.0f);
 	result.radius = MagnitudeSq(center - pointsArray[0]);
-	for (int i = 1; i < arrayCount; ++i)
+	for (int i = 1; i < arrayCount; i++)
 	{
 		float distance = MagnitudeSq(center - pointsArray[i]);
 		if (distance > result.radius)
@@ -417,10 +397,10 @@ Circle ContainingCircle(Point2D* pointsArray, int arrayCount)
 
 Rectangle2D ContainingRectangle(Point2D* pointArray, int arrayCount)
 {
-	vec2 min = pointArray[0];
-	vec2 max = pointArray[0];
+	Vec2 min = pointArray[0];
+	Vec2 max = pointArray[0];
 
-	for (int i = 0; i < arrayCount; ++i)
+	for (int i = 0; i < arrayCount; i++)
 	{
 		min.x = pointArray[i].x < min.x ?
 			pointArray[i].x : min.x;
@@ -437,7 +417,7 @@ Rectangle2D ContainingRectangle(Point2D* pointArray, int arrayCount)
 
 bool PointInShape(const BoundingShape& shape, const Point2D& point)
 {
-	for (int i = 0; i < shape.numCircles; ++i)
+	for (int i = 0; i < shape.numCircles; i++)
 	{
 		if (PointInCircle(point, shape.circles[i]))
 		{
@@ -445,7 +425,7 @@ bool PointInShape(const BoundingShape& shape, const Point2D& point)
 		}
 	}
 
-	for (int i = 0; i < shape.numRectangles; ++i)
+	for (int i = 0; i < shape.numRectangles; i++)
 	{
 		if (PointInRectangle(point, shape.rectangles[i]))
 		{

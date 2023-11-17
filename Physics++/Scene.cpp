@@ -122,15 +122,15 @@ std::vector<Model*> Scene::Query(const AABB& aabb)
 	return result;
 }
 
-bool Scene::Accelerate(const vec3& position, float size)
+bool Scene::Accelerate(const Vec3& position, float size)
 {
 	if (octree != 0)
 	{
 		return false;
 	}
 
-	vec3 min(position.x - size, position.y - size, position.z - size);
-	vec3 max(position.x + size, position.y + size, position.z + size);
+	Vec3 min(position.x - size, position.y - size, position.z - size);
+	Vec3 max(position.x + size, position.y + size, position.z + size);
 
 	octree = new OctreeNode();
 	octree->bounds = FromMinMax(min, max);
@@ -201,7 +201,6 @@ std::vector<Model*> Scene::Cull(const Frustum& frustum)
 	return result;
 }
 
-// OctreeNode methods
 void SplitTree(OctreeNode* node, int depth)
 {
 	if (depth-- <= 0)
@@ -213,17 +212,17 @@ void SplitTree(OctreeNode* node, int depth)
 	{
 		node->children = new OctreeNode[8];
 		
-		vec3 c = node->bounds.position;
-		vec3 e = node->bounds.size * 0.5f;
+		Vec3 c = node->bounds.position;
+		Vec3 e = node->bounds.size * 0.5f;
 
-		node->children[0].bounds = AABB(c + vec3(-e.x, +e.y, -e.z), e);
-		node->children[1].bounds = AABB(c + vec3(+e.x, +e.y, -e.z), e);
-		node->children[2].bounds = AABB(c + vec3(-e.x, +e.y, +e.z), e);
-		node->children[3].bounds = AABB(c + vec3(+e.x, +e.y, +e.z), e);
-		node->children[4].bounds = AABB(c + vec3(-e.x, -e.y, -e.z), e);
-		node->children[5].bounds = AABB(c + vec3(+e.x, -e.y, -e.z), e);
-		node->children[6].bounds = AABB(c + vec3(-e.x, -e.y, +e.z), e);
-		node->children[7].bounds = AABB(c + vec3(+e.x, -e.y, +e.z), e);
+		node->children[0].bounds = AABB(c + Vec3(-e.x, +e.y, -e.z), e);
+		node->children[1].bounds = AABB(c + Vec3(+e.x, +e.y, -e.z), e);
+		node->children[2].bounds = AABB(c + Vec3(-e.x, +e.y, +e.z), e);
+		node->children[3].bounds = AABB(c + Vec3(+e.x, +e.y, +e.z), e);
+		node->children[4].bounds = AABB(c + Vec3(-e.x, -e.y, -e.z), e);
+		node->children[5].bounds = AABB(c + Vec3(+e.x, -e.y, -e.z), e);
+		node->children[6].bounds = AABB(c + Vec3(-e.x, -e.y, +e.z), e);
+		node->children[7].bounds = AABB(c + Vec3(+e.x, -e.y, +e.z), e);
 	}
 
 	if (node->children != 0 && node->models.size() > 0)
@@ -328,7 +327,11 @@ Model* FindClosest(const std::vector<Model*>& set, const Ray& ray)
 
 Model* Raycast(OctreeNode* node, const Ray& ray) 
 {
-	float t = Raycast(node->bounds, ray);
+	RaycastResult result;
+
+	float t = Raycast(node->bounds, ray, &result);
+
+	// CHECK FOR t == 0 => return;?
 
 	if (t >= 0)
 	{

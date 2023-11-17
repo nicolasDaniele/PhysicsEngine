@@ -1,13 +1,10 @@
 #pragma once
-#ifndef _H_MATH_VETORS_
-#define _H_MATH_VETORS_
 
 #define RAD2DEG(x) ((x) * 57.295754f)
 #define DEG2RAD(x) ((x) * 0.0174533f)
+#define CMP(x, y) (fabsf((x)-(y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
 
-//			 STRUCTURE DEFINITIONS
-// VEC2
-typedef struct vec2
+typedef struct Vec2
 {
 	union 
 	{
@@ -19,18 +16,17 @@ typedef struct vec2
 		float asArray[2];
 	};
 
-	inline vec2(float x, float y)
+	inline Vec2(float x, float y)
 		: x(x), y(y) {}
-	inline vec2() : x(0.0f), y(0.0f) {}
+	inline Vec2() : x(0.0f), y(0.0f) {}
 
 	float& operator[](int i)
 	{
 		return asArray[i];
 	}
-} vec2;
+} Vec2;
 
-// VEC3
-typedef struct vec3
+typedef struct Vec3
 {
 	union 
 	{
@@ -44,70 +40,51 @@ typedef struct vec3
 		float asArray[3];
 	};
 
-	inline vec3(float x, float y, float z) 
+	inline Vec3(float x, float y, float z) 
 	: x(x), y(y), z(z) {}
-	inline vec3() : x(0.0f), y(0.0f), z(0.0f) {}
+	inline Vec3() : x(0.0f), y(0.0f), z(0.0f) {}
 
 	float& operator[](int i)
 	{
 		return asArray[i];
 	}
-} vec3;
+} Vec3;
 
+Vec2 operator+(const Vec2& v1, const Vec2& v2);
+Vec3 operator+(const Vec3& v1, const Vec3& v2);
+Vec2 operator-(const Vec2& v1, const Vec2& v2);
+Vec3 operator-(const Vec3& v1, const Vec3& v2);
+Vec2 operator*(const Vec2& v1, const Vec2& v2);
+Vec3 operator*(const Vec3& v1, const Vec3& v2);
+Vec2 operator*(const Vec2& v, float f);
+Vec3 operator*(const Vec3& v, float f);
+bool operator==(const Vec2& v1, const Vec2& v2);
+bool operator==(const Vec3& v1, const Vec3& v);
+bool operator!=(const Vec2& v1, const Vec2& v2);
+bool operator!=(const Vec3& v1, const Vec3& v2);
 
-//			METHOD DECLARATIONS
+float Dot(const Vec2& v1, const Vec2& v2);
+float Dot(const Vec3& v1, const Vec3& v2);
 
-// Operators Overload
-// Addition
-vec2 operator+(const vec2& v1, const vec2& v2);
-vec3 operator+(const vec3& v1, const vec3& v2);
-// Subtraction
-vec2 operator-(const vec2& v1, const vec2& v2);
-vec3 operator-(const vec3& v1, const vec3& v2);
-// Vector Multiplication
-vec2 operator*(const vec2& v1, const vec2& v2);
-vec3 operator*(const vec3& v1, const vec3& v2);
-// Scalar multiplication
-vec2 operator*(const vec2& v, float f);
-vec3 operator*(const vec3& v, float f);
-// Equality 
-bool operator==(const vec2& v1, const vec2& v2);
-bool operator==(const vec3& v1, const vec3& v);
-bool operator!=(const vec2& v1, const vec2& v2);
-bool operator!=(const vec3& v1, const vec3& v2);
+float Magnitude(const Vec2& v);
+float Magnitude(const Vec3& v);
+float MagnitudeSq(const Vec2& v);
+float MagnitudeSq(const Vec3& v);
 
-// Dot Product
-float Dot(const vec2& v1, const vec2& v2);
-float Dot(const vec3& v1, const vec3& v2);
+void Normalize(Vec2& v);
+void Normalize(Vec3& v);
+Vec2 Normalized(const Vec2& v);
+Vec3 Normalized(const Vec3& v);
 
-// Magnitude
-float Magnitude(const vec2& v);
-float Magnitude(const vec3& v);
-// Squared Magnitude
-float MagnitudeSq(const vec2& v);
-float MagnitudeSq(const vec3& v);
+Vec3 Cross(const Vec3 v1, const Vec3 v2);
 
-// Vector Normalizing
-void Normalize(vec2& v);
-void Normalize(vec3& v);
-vec2 Normalized(const vec2& v);
-vec3 Normalized(const vec3& v);
+float Angle(const Vec2& v1, const Vec2& v2);
+float Angle(const Vec3& v1, const Vec3& v2);
 
-// Cross Product
-vec3 Cross(const vec3 v1, const vec3 v2);
+Vec2 Project(const Vec2& length, const Vec2& direction);
+Vec3 Project(const Vec3& length, const Vec3& direction);
+Vec2 Perpendicular(const Vec2& length, const Vec2& direction);
+Vec3 Perpendicular(const Vec3& length, const Vec3& direction);
 
-// Angle
-float Angle(const vec2& v1, const vec2& v2);
-float Angle(const vec3& v1, const vec3& v2);
-
-// Projection
-vec2 Project(const vec2& length, const vec2& direction);
-vec3 Project(const vec3& length, const vec3& direction);
-vec2 Peroendicular(const vec2& length, const vec2& direction);
-vec3 Peroendicular(const vec3& length, const vec3& direction);
-
-// Reflection
-vec2 Reflection(const vec2& vec, const vec2& normal);
-vec3 Reflection(const vec3& vec, const vec3& normal);
-
-#endif
+Vec2 Reflection(const Vec2& vec, const Vec2& normal);
+Vec3 Reflection(const Vec3& vec, const Vec3& normal);

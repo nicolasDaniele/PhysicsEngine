@@ -1,12 +1,9 @@
 #pragma once
 
-#ifndef _H_SCENE_
-#define _H_SCENE_
-
 #include "Geometry3D.h"
 #include <vector>
 
-typedef struct OctreeNode
+struct OctreeNode
 {
 	AABB bounds;
 	OctreeNode* children;
@@ -20,7 +17,7 @@ typedef struct OctreeNode
 			delete[] children;
 		}
 	}
-} OctreeNode;
+};
 
 class Scene
 {
@@ -41,7 +38,7 @@ public:
 	Model* Raycast(const Ray& ray);
 	std::vector<Model*> Query(const Sphere& sphere);
 	std::vector<Model*> Query(const AABB& aabb);
-	bool Accelerate(const vec3& position, float size);
+	bool Accelerate(const Vec3& position, float size);
 	std::vector<Model*> Cull(const Frustum& frustum);
 
 protected:
@@ -53,7 +50,6 @@ private:
 	Scene& operator=(const Scene&);
 };
 
-// OctreeNode methods
 void SplitTree(OctreeNode* node, int depth);
 void Insert(OctreeNode* node, Model* model);
 void Remove(OctreeNode* node, Model* model);
@@ -62,5 +58,3 @@ Model* FindClosest(const std::vector<Model*>& set, const Ray& ray);
 Model* Raycast(OctreeNode* node, const Ray& ray);
 std::vector<Model*> Query(OctreeNode* node, const Sphere& sphere);
 std::vector<Model*> Query(OctreeNode* node, const AABB& aabb);
-
-#endif

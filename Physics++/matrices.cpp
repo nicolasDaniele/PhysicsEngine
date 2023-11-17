@@ -1,13 +1,7 @@
-#include "matrices.h"
+#include "Matrices.h"
 #include <cmath>
 #include <cfloat>
 
-#define CMP(x, y) (fabsf((x) - (y)) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
-
-	//		METHOD IMPLEMENTATIONS
-
-// TRANSPOSE
-// Generic Transpose
 void Transpose(const float* srcMat, float* dstMat,
 	int srcRows, int srcCols)
 {
@@ -19,33 +13,30 @@ void Transpose(const float* srcMat, float* dstMat,
 	}
 }
 
-// Specific Matrices Transposes
-mat2 Transpose(const mat2& matrix)
+Mat2 Transpose(const Mat2& matrix)
 {
-	mat2 result;
+	Mat2 result;
 	Transpose(matrix.asArray, result.asArray, 2, 2);
 	return result;
 }
 
-mat3 Transpose(const mat3& matrix)
+Mat3 Transpose(const Mat3& matrix)
 {
-	mat3 result;
+	Mat3 result;
 	Transpose(matrix.asArray, result.asArray, 3, 3);
 	return result;
 }
 
-mat4 Transpose(const mat4& matrix)
+Mat4 Transpose(const Mat4& matrix)
 {
-	mat4 result;
+	Mat4 result;
 	Transpose(matrix.asArray, result.asArray, 4, 4);
 	return result;
 }
 
-// Multiplacation
-// Scalar Multiplication
-mat2 operator* (const mat2& matrix, float scalar)
+Mat2 operator* (const Mat2& matrix, float scalar)
 {
-	mat2 result;
+	Mat2 result;
 	for (int i = 0; i < 4; i++)
 	{
 		result.asArray[i] = matrix.asArray[i] * scalar;
@@ -53,9 +44,9 @@ mat2 operator* (const mat2& matrix, float scalar)
 	return result;
 }
 
-mat3 operator* (const mat3& matrix, float scalar)
+Mat3 operator* (const Mat3& matrix, float scalar)
 {
-	mat3 result;
+	Mat3 result;
 	for (int i = 0; i < 9; i++)
 	{
 		result.asArray[i] = matrix.asArray[i] * scalar;
@@ -63,9 +54,9 @@ mat3 operator* (const mat3& matrix, float scalar)
 	return result;
 }
 
-mat4 operator* (const mat4& matrix, float scalar)
+Mat4 operator* (const Mat4& matrix, float scalar)
 {
-	mat4 result;
+	Mat4 result;
 	for (int i = 0; i < 16; i++)
 	{
 		result.asArray[i] = matrix.asArray[i] * scalar;
@@ -73,8 +64,6 @@ mat4 operator* (const mat4& matrix, float scalar)
 	return result;
 }
 
-// Matrix-Matrix Multiplication
-// Generic Multiplication
 bool Multiply(float* out, const float* matA, int aRows,
 	int aCols, const float* matB, int bRows, int bCols)
 {
@@ -100,46 +89,42 @@ bool Multiply(float* out, const float* matA, int aRows,
 	return true;
 }
 
-// Specific Matrix-Matrix Multiplications
-mat2 operator* (const mat2& matA, const mat2& matB)
+Mat2 operator* (const Mat2& matA, const Mat2& matB)
 {
-	mat2 result;
+	Mat2 result;
 	Multiply(result.asArray, matA.asArray, 
 		2, 2, matB.asArray, 2, 2);
 	return result;
 }
 
-mat3 operator* (const mat3& matA, const mat3& matB)
+Mat3 operator* (const Mat3& matA, const Mat3& matB)
 {
-	mat3 result;
+	Mat3 result;
 	Multiply(result.asArray, matA.asArray,
 		3, 3, matB.asArray, 3, 3);
 	return result;
 }
 
-mat4 operator* (const mat4& matA, const mat4& matB)
+Mat4 operator* (const Mat4& matA, const Mat4& matB)
 {
-	mat4 result;
+	Mat4 result;
 	Multiply(result.asArray, matA.asArray,
 		4, 4, matB.asArray, 4, 4);
 	return result;
 }
 
-// Determinants
-// Determinant of a 2x2 Matrix
-float Determinant(const mat2& matrix)
+float Determinant(const Mat2& matrix)
 {
 	return matrix._11 * matrix._22 -
 		matrix._12 * matrix._21;
 }
 
-// Determinant of a 3x3 Matrix
-float Determinant(const mat3& matrix)
+float Determinant(const Mat3& matrix)
 {
 	float result = 0.0f;
-	mat3 cofactor = Cofactor(matrix);
+	Mat3 cofactor = Cofactor(matrix);
 
-	for (int j = 0; j < 3; ++j)
+	for (int j = 0; j < 3; j++)
 	{
 		int index = 3 * 0 + j;
 		result += matrix.asArray[index] * cofactor[0][j];
@@ -148,15 +133,14 @@ float Determinant(const mat3& matrix)
 	return result;
 }
 
-// Matrix of Minors
-mat2 Cut(const mat3& mat, int row, int col)
+Mat2 Cut(const Mat3& mat, int row, int col)
 {
-	mat2 result;
+	Mat2 result;
 	int index = 0;
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 3; ++j)
+		for (int j = 0; j < 3; j++)
 		{
 			if (i == row || j == col)
 			{
@@ -171,19 +155,19 @@ mat2 Cut(const mat3& mat, int row, int col)
 	return result;
 }
 
-mat2 Minor(const mat2& mat)
+Mat2 Minor(const Mat2& mat)
 {
-	return mat2(mat._22, mat._21,
+	return Mat2(mat._22, mat._21,
 		mat._12, mat._11);
 }
 
-mat3 Minor(const mat3& mat)
+Mat3 Minor(const Mat3& mat)
 {
-	mat3 result;
+	Mat3 result;
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 3; ++ j)
+		for (int j = 0; j < 3; j++)
 		{
 			result[i][j] = Determinant(Cut(mat, i, j));
 		}
@@ -192,47 +176,43 @@ mat3 Minor(const mat3& mat)
 	return result;
 }
 
-// Cofactor
-// Generic Cofactor
 void Cofactor(float* out, const float* minor,
 	int rows, int cols)
 {
-	for (int i= 0; i < rows; ++i)
+	for (int i= 0; i < rows; i++)
 	{
-		for (int j = 0; j < cols; ++j)
+		for (int j = 0; j < cols; j++)
 		{
-			int t = cols * j + i; // Target index
-			int s = cols * j + i; // Source index
-			float sign = powf(-1.0, i + j); // + or -
+			int t = cols * j + i;
+			int s = cols * j + i;
+			float sign = powf(-1.0, i + j);
 			out[t] = minor[s] * sign;
 		}
 	}
 }
 
-// Specific Matrix Cofactors
-mat2 Cofactor(const mat2& mat)
+Mat2 Cofactor(const Mat2& mat)
 {
-	mat2 result;
+	Mat2 result;
 	Cofactor(result.asArray, Minor(mat).asArray, 2, 2);
 	return result;
 }
 
-mat3 Cofactor(const mat3& mat)
+Mat3 Cofactor(const Mat3& mat)
 {
-	mat3 result;
+	Mat3 result;
 	Cofactor(result.asArray, Minor(mat).asArray, 3, 3);
 	return result;
 }
 
-// For operations on 4x4 matrices
-mat3 Cut(const mat4& mat, int row, int col)
+Mat3 Cut(const Mat4& mat, int row, int col)
 {
-	mat3 result;
+	Mat3 result;
 	int index = 0;
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 4; i++)
 	{
-		for (int j = 0; j < 4; ++j)
+		for (int j = 0; j < 4; j++)
 		{
 			if (i == row || j == col)
 			{
@@ -247,13 +227,13 @@ mat3 Cut(const mat4& mat, int row, int col)
 	return result;
 }
 
-mat4 Minor(const mat4& mat)
+Mat4 Minor(const Mat4& mat)
 {
-	mat4 result;
+	Mat4 result;
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 4; i++)
 	{
-		for (int j = 0; j < 4; ++j)
+		for (int j = 0; j < 4; j++)
 		{
 			result[i][j] = Determinant(Cut(mat, i, j));
 		}
@@ -262,70 +242,77 @@ mat4 Minor(const mat4& mat)
 	return result;
 }
 
-mat4 Cofactor(const mat4& mat)
+Mat4 Cofactor(const Mat4& mat)
 {
-	mat4 result;
+	Mat4 result;
 	Cofactor(result.asArray, Minor(mat).asArray, 4, 4);
 	return result;
 }
 
-float Determinant(const mat4& mat)
+float Determinant(const Mat4& mat)
 {
 	float result = 0.0f;
-	mat4 cofactor = Cofactor(mat);
+	Mat4 cofactor = Cofactor(mat);
 
-	for (int j = 0; j < 4; ++j)
+	for (int i = 0; i < 4; i++)
 	{
-		result += mat.asArray[4 * 0 + j] * cofactor[0][j];
+		result += mat.asArray[4 * 0 + i] * cofactor[0][i];
 	}
 
 	return result;
 }
 
-// Adjugate Matrix
-mat2 Adjugate(const mat2& mat)
+Mat2 Adjugate(const Mat2& mat)
 {
 	return Transpose(Cofactor(mat));
 }
 
-mat3 Adjugate(const mat3& mat)
+Mat3 Adjugate(const Mat3& mat)
 {
 	return Transpose(Cofactor(mat));
 }
 
-mat4 Adjugate(const mat4& mat)
+Mat4 Adjugate(const Mat4& mat)
 {
 	return Transpose(Cofactor(mat));
 }
 
-// Matrix Inverse
-mat2 Inverse(const mat2& mat)
+Mat2 Inverse(const Mat2& mat)
 {
 	float det = Determinant(mat);
-	if (CMP(det, 0.0f)) { return mat2(); }
+	if (CMP(det, 0.0f)) 
+	{
+		return Mat2(); 
+	}
+
 	return Adjugate(mat) * (1.0f / det);
 }
 
-mat3 Inverse(const mat3& mat)
+Mat3 Inverse(const Mat3& mat)
 {
 	float det = Determinant(mat);
-	if (CMP(det, 0.0f)) { return mat3(); }
+	if (CMP(det, 0.0f)) 
+	{
+		return Mat3(); 
+	}
+
 	return Adjugate(mat) * (1.0f / det);
 }
 
-mat4 Inverse(const mat4& mat)
+Mat4 Inverse(const Mat4& mat)
 {
 	float det = Determinant(mat);
-	if (CMP(det, 0.0f)) { return mat4(); }
+	if (CMP(det, 0.0f)) 
+	{
+		return Mat4(); 
+	}
+
 	return Adjugate(mat) * (1.0f / det);
 }
 
-
-//		MATRIX TRANSFORMATIONS
-// Translation
-mat4 Translation(float x, float y, float z)
+Mat4 Translation(float x, float y, float z)
 {
-	return mat4(
+	return Mat4(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
@@ -333,10 +320,10 @@ mat4 Translation(float x, float y, float z)
 	);
 }
 
-mat4 Translation(const vec3& pos)
+Mat4 Translation(const Vec3& pos)
 {
 	{
-		return mat4(
+		return Mat4(
 			1.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
@@ -345,15 +332,14 @@ mat4 Translation(const vec3& pos)
 	}
 }
 
-vec3 GetTranslation(const mat4& mat)
+Vec3 GetTranslation(const Mat4& mat)
 {
-	return vec3(mat._41, mat._42, mat._43);
+	return Vec3(mat._41, mat._42, mat._43);
 }
 
-// Scaling
-mat4 Scale(float x, float y, float z)
+Mat4 Scale(float x, float y, float z)
 {
-	return mat4(
+	return Mat4(
 		x,    0.0f, 0.0f, 0.0f,
 		0.0f, y,    0.0f, 0.0f,
 		0.0f, 0.0f, z   , 0.0f,
@@ -361,9 +347,9 @@ mat4 Scale(float x, float y, float z)
 	);
 }
 
-mat4 Scale(const vec3& vec)
+Mat4 Scale(const Vec3& vec)
 {
-	return mat4(
+	return Mat4(
 		vec.x, 0.0f, 0.0f, 0.0f,
 		0.0f, vec.y, 0.0f, 0.0f,
 		0.0f, 0.0f, vec.z, 0.0f,
@@ -371,30 +357,29 @@ mat4 Scale(const vec3& vec)
 	);
 }
 
-vec3 GetScale(const mat4& mat)
+Vec3 GetScale(const Mat4& mat)
 {
-	return vec3(mat._11, mat._22, mat._33);
+	return Vec3(mat._11, mat._22, mat._33);
 }
 
-// Rotation
-mat4 Rotation(float pitch, float yaw, float roll)
+Mat4 Rotation(float pitch, float yaw, float roll)
 {
 	return ZRotation(roll) *
 		XRotation(pitch) *
 		YRotation(yaw);
 }
 
-mat3 Rotation3x3(float pitch, float yaw, float roll)
+Mat3 Rotation3x3(float pitch, float yaw, float roll)
 {
 	return ZRotation3x3(roll) *
 		XRotation3x3(pitch) *
 		YRotation3x3(yaw);
 }
 
-mat4 ZRotation(float angle)
+Mat4 ZRotation(float angle)
 {
 	angle = DEG2RAD(angle);
-	return mat4(
+	return Mat4(
 		cosf(angle), sinf(angle), 0.0f, 0.0f,
 		-sinf(angle), cos(angle), 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
@@ -402,40 +387,40 @@ mat4 ZRotation(float angle)
 	);
 }
 
-mat3 ZRotation3x3(float angle)
+Mat3 ZRotation3x3(float angle)
 {
 	angle = DEG2RAD(angle);
-	return mat3(
+	return Mat3(
 		cosf(angle), sinf(angle), 0.0f,
 		-sinf(angle), cos(angle), 0.0f,
 		0.0f, 0.0f, 1.0f
 	);
 }
 
-mat4 XRotation(float angle)
+Mat4 XRotation(float angle)
 {
 	angle = DEG2RAD(angle);
-	return mat4(
+	return Mat4(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, cosf(angle), sinf(angle), 0.0f,
 		0.0f, -sinf(angle), cosf(angle), 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 		);
 }
-mat3 XRotation3x3(float angle)
+Mat3 XRotation3x3(float angle)
 {
 	angle = DEG2RAD(angle);
-	return mat3(
+	return Mat3(
 		1.0f, 0.0f, 0.0f,
 		0.0f, cosf(angle), sinf(angle),
 		0.0f, -sinf(angle), cosf(angle)
 		);
 }
 
-mat4 YRotation(float angle)
+Mat4 YRotation(float angle)
 {
 	angle = DEG2RAD(angle);
-	return mat4(
+	return Mat4(
 		cosf(angle), 0.0f, -sinf(angle), 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
 		sinf(angle), 0.0f, cosf(angle), 0.0f,
@@ -443,17 +428,17 @@ mat4 YRotation(float angle)
 	);
 }
 
-mat3 YRotation3x3(float angle)
+Mat3 YRotation3x3(float angle)
 {
 	angle = DEG2RAD(angle);
-	return mat3(
+	return Mat3(
 		cosf(angle), 0.0f, -sinf(angle),
 		0.0f, 1.0f, 0.0f,
 		sinf(angle), 0.0f, cosf(angle)
 	);
 }
 
-mat4 AxisAngle(const vec3& axis, float angle)
+Mat4 AxisAngle(const Vec3& axis, float angle)
 {
 	angle = DEG2RAD(angle);
 	float c = cosf(angle);
@@ -467,12 +452,12 @@ mat4 AxisAngle(const vec3& axis, float angle)
 	if (CMP(MagnitudeSq(axis), 1.0f))
 	{
 		float inv_len = 1.0f / Magnitude(axis);
-		x *= inv_len; // Normalize x
-		y *= inv_len; // Normalize y
-		z *= inv_len; // Normalize z
+		x *= inv_len;
+		y *= inv_len;
+		z *= inv_len;
 	}
 
-	return mat4(
+	return Mat4(
 		t*(x*x) + c, t*x*y + s*z, t*x*z - s*y, 0.0f,
 		t*x*y - s*z, t*(y*y) + c, t*y*z + s*x, 0.0f,
 		t*x*z + s*y, t*y*z - s*x, t*(z*z) + c, 0.0f,
@@ -480,7 +465,7 @@ mat4 AxisAngle(const vec3& axis, float angle)
 	);
 }
 
-mat3 AxisAngle3x3(const vec3& axis, float angle)
+Mat3 AxisAngle3x3(const Vec3& axis, float angle)
 {
 	angle = DEG2RAD(angle);
 	float c = cosf(angle);
@@ -499,17 +484,16 @@ mat3 AxisAngle3x3(const vec3& axis, float angle)
 		z *= inv_len; 
 	}
 
-	return mat3(
+	return Mat3(
 		t * (x * x) + c, t * x * y + s * z, t * x * z - s * y,
 		t * x * y - s * z, t * (y * y) + c, t * y * z + s * x,
 		t * x * z + s * y, t * y * z - s * x, t * (z * z) + c
 	);
 }
 
-// Vector-Matrix Multiplications
-vec3 MultiplyPoint(const vec3& vec, const mat4& mat)
+Vec3 MultiplyPoint(const Vec3& vec, const Mat4& mat)
 {
-	vec3 result;
+	Vec3 result;
 	result.x = vec.x * mat._11 + vec.y * mat._21 + 
 		       vec.z * mat._31 + 1.0f * mat._41;
 	result.y = vec.x * mat._12 + vec.y * mat._22 +
@@ -520,9 +504,9 @@ vec3 MultiplyPoint(const vec3& vec, const mat4& mat)
 	return result;
 }
 
-vec3 MultiplyVector(const vec3& vec, const mat4& mat)
+Vec3 MultiplyVector(const Vec3& vec, const Mat4& mat)
 {
-	vec3 result;
+	Vec3 result;
 	result.x = vec.x * mat._11 + vec.y * mat._21 +
 		vec.z * mat._31 + 0.0f * mat._41;
 	result.y = vec.x * mat._12 + vec.y * mat._22 +
@@ -533,19 +517,18 @@ vec3 MultiplyVector(const vec3& vec, const mat4& mat)
 	return result;
 }
 
-vec3 MultiplyVector(const vec3& vec, const mat3& mat)
+Vec3 MultiplyVector(const Vec3& vec, const Mat3& mat)
 {
-	vec3 result;
-	result.x = Dot(vec, vec3(mat._11, mat._21, mat._31));
-	result.y = Dot(vec, vec3(mat._12, mat._22, mat._32));
-	result.z = Dot(vec, vec3(mat._13, mat._23, mat._33));
+	Vec3 result;
+	result.x = Dot(vec, Vec3(mat._11, mat._21, mat._31));
+	result.y = Dot(vec, Vec3(mat._12, mat._22, mat._32));
+	result.z = Dot(vec, Vec3(mat._13, mat._23, mat._33));
 
 	return result;
 }
 
-// Transform Matrix
-mat4 Transform(const vec3& scale, const vec3& eulerRotation,
-	const vec3& translate)
+Mat4 Transform(const Vec3& scale, const Vec3& eulerRotation,
+	const Vec3& translate)
 {
 	return Scale(scale) *
 		Rotation(eulerRotation.x, 
@@ -554,22 +537,21 @@ mat4 Transform(const vec3& scale, const vec3& eulerRotation,
 		Translation(translate);
 }
 
-mat4 Transform(const vec3& scale, const vec3& rotationAxis,
-	float rotationAngle, const vec3& translate)
+Mat4 Transform(const Vec3& scale, const Vec3& rotationAxis,
+	float rotationAngle, const Vec3& translate)
 {
 	return Scale(scale) *
 		AxisAngle(rotationAxis, rotationAngle) *
 		Translation(translate);
 }
 
-// View Matrix
-mat4 LookAt(const vec3& position, const vec3& target, const vec3& up)
+Mat4 LookAt(const Vec3& position, const Vec3& target, const Vec3& up)
 {
-	vec3 forward = Normalized(target - position);
-	vec3 right = Normalized(Cross(up, forward));
-	vec3 newUp = Cross(forward, right);
+	Vec3 forward = Normalized(target - position);
+	Vec3 right = Normalized(Cross(up, forward));
+	Vec3 newUp = Cross(forward, right);
 
-	return mat4(
+	return Mat4(
 		right.x, newUp.x, forward.x, 0.0f,
 		right.y, newUp.y, forward.y, 0.0f,
 		right.z, newUp.z, forward.z, 0.0f,
@@ -579,36 +561,35 @@ mat4 LookAt(const vec3& position, const vec3& target, const vec3& up)
 	);
 }
 
-// Projection Matrix
-mat4 Projection(float fov, float aspect,
+Mat4 Projection(float fov, float aspect,
 	float zNear, float zFar)
 {
 	float tanHalfFov = tanf(DEG2RAD((fov * 0.5f)));
-	float fovY = 1.0f / tanHalfFov; // cot(fov/2)
-	float fovX = fovY / aspect; // cot(fov/2) / aspect
+	float fovY = 1.0f / tanHalfFov;
+	float fovX = fovY / aspect;
 	
-	mat4 result;
+	Mat4 result;
 	result._11 = fovX;
 	result._22 = fovY;
-	result._33 = zFar / (zFar - zNear); // far / range
+	result._33 = zFar / (zFar - zNear);
 	result._34 = 1.0f;
-	result._43 = -zNear * result._33; // -near * (far/range)
+	result._43 = -zNear * result._33;
 	result._44 = 0.0f;
 
 	return result;
 }
 
-mat4 Ortho(float left, float right, float bottom,
+Mat4 Ortho(float left, float right, float bottom,
 	float top, float zNear, float zFar)
 {
 	float _11 = 2.0f / (right - left);
 	float _22 = 2.0f / (top - bottom);
-	float _33 = 1.0 / (zFar - zNear);
+	float _33 = 1.0f / (zFar - zNear);
 	float _41 = (left + right) / (left - right);
 	float _42 = (top + bottom) / (top - bottom);
 	float _43 = (zNear) / (zNear - zFar);
 
-	return mat4(
+	return Mat4(
 		_11, 0.0f, 0.0f, 0.0f,
 		0.0f, _22, 0.0f, 0.0f,
 		0.0f, 0.0f, _33, 0.0f,
